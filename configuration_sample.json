@@ -22,9 +22,9 @@
 		}
 	},
 	"dip_config": {
-		"mode": "threshold",
 		"interval": 3600,
 		"threshold": 10,
+		"mode": "threshold",
 		"tiers": [
 			5,
 			5,
