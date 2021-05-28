@@ -17,6 +17,8 @@ tickersBinance = []
 tickersKraken = []
 intervalPrice = []
 
+intervalStart = int(time.time())
+
 # Check if table exists
 dbMutation.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='history' ''')
 if dbMutation.fetchone()[0]==1:
@@ -32,24 +34,25 @@ with open('configuration.json') as config:
     # Populate ticker arrays
     # Binance
     if (data["exchanges"]["binance"]["enabled"]):
-     for i in range(len(data["exchanges"]["binance"]["tickers"])):
-        tickersBinance.append(data["exchanges"]["binance"]["tickers"][i])
+        for i in range(len(data["exchanges"]["binance"]["tickers"])):
+            tickersBinance.append(data["exchanges"]["binance"]["tickers"][i])
     
     # Kraken
     if (data["exchanges"]["kraken"]["enabled"]):
-     for i in range(len(data["exchanges"]["kraken"]["tickers"])):
-        tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
+        for i in range(len(data["exchanges"]["kraken"]["tickers"])):
+            tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
         
     # Read misc config
     interval = data["dip_config"]["interval"]
-    dipThreshold = data["dip_config"]["threshold"]
-    dipThreshold = -dipThreshold
+    #dipThreshold = data["dip_config"]["threshold"]
+    #dipThreshold = -dipThreshold
+    dipThreshold = 0
 
 # =======================================================
 # ===       FUNC                                      ===
 # =======================================================
 
-def hashing(query_string):
+def hash(query_string, secret):
     return hmac.new(secret.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
 
 def storeIntoDB(exchange, ticker, time, dip):
@@ -60,6 +63,19 @@ def storeIntoDB(exchange, ticker, time, dip):
 def getTime():
     return time.strftime("%H:%M:%S", time.localtime())
 
+def newInterval():
+    print(getTime() + " [INFO] New interval!")
+    intervalStart = int(time.time())
+
+    # Populate intervalPrice[]
+    if (data["exchanges"]["binance"]["enabled"]):
+        for i in range(len(tickersBinance)):
+            intervalPrice.append( basePrice( 'Binance', tickersBinance[i], int(float(binance.getPrice(tickersBinance[i]))), False ) )
+
+    # Reset buy flag
+    for base in intervalPrice:
+            base.bought = False
+                
 # Classes
 class Binance:    
     # Acquire price    
@@ -71,13 +87,31 @@ class Binance:
             return "ERROR: " + response.status_code
         else:
             return response.json()['price']
+    
+    def buy(ticker):
+        # Assemlbe request body
+        stake = data["exchanges"]["binance"]["enabled"]
+        paramString = "symbol=" + str(ticker) + "?side=BUY?quoteOrderQty=" + str(stake) + "?timestamp=" + str(time.time() * 1000)
+        paramString = paramString + "&signature=" + str(hash(paramString, data["exchanges"]["binance"]["api_secret"]))
+        print(paramString)
+        
+        headers = {'X-MBX-APIKEY': data["exchanges"]["binance"]["api_key"]}
+        response = requests.post(binanceAPI + "?" + paramString, headers=headers)
+        print(response.content)
+        
+        # Handle response
+        if not response.status_code == 200:
+            return getTime() + " [BUY ] ERROR: " + response.status_code + " - " + response.json()
+        else:
+            return getTime() + " [BUY ] SUCCESS: " + response.status_code + " - " + response.json()
 
 # Object to use as a base price for all intervals
 class basePrice:
-    def __init__(self, exchange, ticker, price):
+    def __init__(self, exchange, ticker, price, bought):
         self.exchange = exchange
         self.ticker = ticker
         self.price = price
+        self.bought = bought
             
     def report(self):
         print(self)
@@ -93,29 +127,14 @@ binance = Binance()
 # Acquire prices
 print(getTime() + " [INFO] Interval set at: " + str(interval) + " seconds.")
 print(getTime() + " [LOOP] Beginning...")
-freshInterval = True
-intervalStart = int(time.time())
-haveBought = False
+newInterval()
 
 while True:
     time.sleep(1)
     
     # Check if an interval has passed
     if (int(time.time()) - intervalStart) > interval:
-        freshInterval = True
-        haveBought = False
-        intervalStart = int(time.time())
-        
-    # Save price at start of interval
-    if freshInterval:
-        print(getTime() + " [INFO] New interval!")
-        
-        # Populate intervalPrice[]
-        if (data["exchanges"]["binance"]["enabled"]):
-            for i in range(len(tickersBinance)):
-                intervalPrice.append( basePrice('Binance', tickersBinance[i], int(float(binance.getPrice(tickersBinance[i])))) )
-        
-        freshInterval = False
+        newInterval()
  
     #for obj in intervalPrice:
     #    print( obj.exchange, obj.ticker, obj.price, sep =' ' )
@@ -134,6 +153,7 @@ while True:
                     print(getTime() + "   > " + tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
                     
                     # Buy if the price has dipped below threshold and nothing has been bought before
-                    if percentage < dipThreshold and not haveBought:
+                    if percentage < dipThreshold and not base.bought:
                         print(getTime() + "       > Percentage below threshold, buying!")
-                        haveBought = True
+                        base.bought = True
+                        
