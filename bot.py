@@ -109,6 +109,8 @@ async def binanceMonitor():
                         
                         # Buy if the price has dipped below threshold and nothing has been bought before
                         if percentage < dipThreshold and not base.bought:
+                            msg = "Attempting to buy " + base.ticker + " at a price of " + str(priceNow) + " on " + base.exchange + ".\nIt has dipped below " + str(int(percentage)) + "%. @here"
+                            await asyncio.wait_for(client.send_message(msg), timeout=5)
                             print(getTime() + "       > Percentage below threshold, buying!")
                             
                             msg, status = binance.buy(base.ticker)
