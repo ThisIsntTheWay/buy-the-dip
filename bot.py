@@ -5,25 +5,21 @@ import json
 
 database = sqlite3.connect('./botRecords.db');
 binanceAPI = "https://api.binance.com/api/v3/"
-tickers = [""]
+tickersBinance = []
+tickersKraken = []
 
 # Read configuration
 with open('configuration.json') as config:
     data = json.load(config)
     
-    # Populate tickers array
-    for i in range(len(data["tickers"])):
-        tickers.append(data["tickers"][i])
+    # Populate ticker arrays
+    if (data["exchanges"]["binance"]["enabled"]):
+     for i in range(len(data["exchanges"]["binance"]["tickers"])):
+        tickersBinance.append(data["exchanges"]["binance"]["tickers"][i])
+        
+    if (data["exchanges"]["kraken"]["enabled"]):
+     for i in range(len(data["exchanges"]["kraken"]["tickers"])):
+        tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
 
-# loop to acquire ticker data
-while True:
-    time.sleep(5)
-    
-    # Iterate through prices
-    for i in range(len(tickers)):
-        response = requests.get(binanceAPI + str(tickers[i]))
-        price = json.loads(response.content())
-        
-    # TODO: Save response in list
-        
-    # "avgPrice?symbol=BTCUSDT"
+print(tickersBinance)
+print(tickersKraken)

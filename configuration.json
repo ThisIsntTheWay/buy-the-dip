@@ -1,23 +1,23 @@
 {
-	"tickers": [
-	    "BTCUSDT",
-		"ETHUSDT"
-	],
 	"exchanges": {
 		"binance": {
 			"enabled": true,
 			"api_key": "abcd",
-			"api_secret": "abcd"
+			"api_secret": "abcd",
+			"tickers": [
+				"BTCUSDT",
+				"ETHUSDT"
+			]				
 		},
-		"kraken":
+		"kraken": {
 			"enabled": false,
 			"api_key": "abcd",
-			"api_secret": "abcd"
+			"api_secret": "abcd",
+			"tickers": [
+				"BTCUSDT",
+				"ETHUSDT"
+			]
 		}
-	},
-	"discord": {
-		"token": "token",
-		"channel": "channel_id"
 	},
 	"dip_config": {
 		"mode": "threshold",
@@ -29,5 +29,9 @@
 				10
 			]
 		}
+	},	
+	"discord": {
+		"token": "token",
+		"channel": "channel_id"
 	}
 }
