@@ -46,7 +46,7 @@ with open('configuration.json') as config:
     interval = data["dip_config"]["interval"]
     #dipThreshold = data["dip_config"]["threshold"]
     #dipThreshold = -dipThreshold
-    dipThreshold = 0
+    dipThreshold = 5
 
 # =======================================================
 # ===       FUNC                                      ===
@@ -67,14 +67,12 @@ def newInterval():
     print(getTime() + " [INFO] New interval!")
     intervalStart = int(time.time())
 
-    # Populate intervalPrice[]
+    # Populate intervalPrice[] after clearing it
+    intervalPrice.clear()
+
     if (data["exchanges"]["binance"]["enabled"]):
         for i in range(len(tickersBinance)):
             intervalPrice.append( basePrice( 'Binance', tickersBinance[i], int(float(binance.getPrice(tickersBinance[i]))), False ) )
-
-    # Reset buy flag
-    for base in intervalPrice:
-            base.bought = False
                 
 # Classes
 class Binance:    
@@ -83,27 +81,31 @@ class Binance:
         response = requests.get(binanceAPI + str("ticker/price?symbol=") + str(ticker))
         
         # Handle response
-        if not response.status_code == 200:
-            return "ERROR: " + response.status_code
-        else:
+        if response.status_code == 200:
             return response.json()['price']
+        else:
+            return getTime() + "ERROR: " + str(response.status_code)
     
-    def buy(ticker):
-        # Assemlbe request body
-        stake = data["exchanges"]["binance"]["enabled"]
-        paramString = "symbol=" + str(ticker) + "?side=BUY?quoteOrderQty=" + str(stake) + "?timestamp=" + str(time.time() * 1000)
+    def buy(self, ticker):
+        # Assemble parameter string
+        stake = data["exchanges"]["binance"]["stake"]
+        paramString = "symbol=" + str(ticker) + "&side=BUY&type=MARKET&quoteOrderQty=" + str(stake) + "&timestamp=" + str(int(time.time() * 1000))
         paramString = paramString + "&signature=" + str(hash(paramString, data["exchanges"]["binance"]["api_secret"]))
-        print(paramString)
         
+        fullRequest = binanceAPI + "order?" + paramString
+        print(getTime() + " [INFO] " + fullRequest)
+        
+        print()
+        
+        # Send POST
         headers = {'X-MBX-APIKEY': data["exchanges"]["binance"]["api_key"]}
-        response = requests.post(binanceAPI + "?" + paramString, headers=headers)
-        print(response.content)
+        response = requests.post(fullRequest.encode(), headers=headers)
         
         # Handle response
-        if not response.status_code == 200:
-            return getTime() + " [BUY ] ERROR: " + response.status_code + " - " + response.json()
+        if response.status_code == 200:
+            return getTime() + " [BUY\u2705] SUCCESS: " + str(response.status_code) + " - "+ str(response.json()), True
         else:
-            return getTime() + " [BUY ] SUCCESS: " + response.status_code + " - " + response.json()
+            return getTime() + " [BUY\u274C] ERROR: " + str(response.status_code) + " - " + str(response.json()), False
 
 # Object to use as a base price for all intervals
 class basePrice:
@@ -112,9 +114,6 @@ class basePrice:
         self.ticker = ticker
         self.price = price
         self.bought = bought
-            
-    def report(self):
-        print(self)
         
 
 # Create instances
@@ -126,6 +125,7 @@ binance = Binance()
 
 # Acquire prices
 print(getTime() + " [INFO] Interval set at: " + str(interval) + " seconds.")
+print(getTime() + " [INFO] Percentage threshhold: " + str(dipThreshold) + "%")
 print(getTime() + " [LOOP] Beginning...")
 newInterval()
 
@@ -155,5 +155,12 @@ while True:
                     # Buy if the price has dipped below threshold and nothing has been bought before
                     if percentage < dipThreshold and not base.bought:
                         print(getTime() + "       > Percentage below threshold, buying!")
-                        base.bought = True
+                        
+                        msg, status = binance.buy(base.ticker)
+                        print(msg)
+                        
+                        # Only set flag if binance did not return an error
+                        if status:
+                            storeIntoDB("Binance", tickersBinance[i], getTime(), percentage)
+                            base.bought = True
                         
