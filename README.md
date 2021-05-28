@@ -1,2 +1,2 @@
-# buy-that-dip
-Bot to buy that dip™
+# Buy the dip
+Bot to buy that dip!
