@@ -6,5 +6,5 @@ ToDo:
 - [ ] Implement support for kraken
 - [X] Implement buy logic
 - [ ] Add "tiered" dip mode
-- [ ] Add discord integration
+- [X] Add discord integration
 - [ ] Add sqlite db
