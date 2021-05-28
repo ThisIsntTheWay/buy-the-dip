@@ -89,9 +89,9 @@ async def intervalMonitor():
     
     msg = "Sniper now snipin' for dips...\n"
     if (data["exchanges"]["binance"]["enabled"]):
-        msg += "Binance: `" + str(tickersBinance) + "` \n"
+        msg += "Binance: `" + str(tickersBinance) + "`, stake: `" + str(data["exchanges"]["binance"]["stake"]) + "` \n"
     if (data["exchanges"]["kraken"]["enabled"]):
-        msg += "Kraken: `" + str(tickersBinance) + "` \n"
+        msg += "Kraken: `" + str(tickersKraken) + "`, stake: `" + str(data["exchanges"]["binance"]["stake"]) + "` \n"
     msg += "Interval: `" + str(interval) + " seconds`, dip threshold: `" + str(dipThreshold) + "%`"
     
     await client.send_message(msg)
