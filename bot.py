@@ -1,7 +1,9 @@
 import requests
 import time
+import sqlite3
 import json
 
+database = sqlite3.connect('./botRecords.db');
 binanceAPI = "https://api.binance.com/api/v3/"
 tickers = [""]
 
@@ -13,19 +15,15 @@ with open('configuration.json') as config:
     for i in range(len(data["tickers"])):
         tickers.append(data["tickers"][i])
 
-# Create price class
-class Prices:
-    def __init__(asset, price, last, time):
-        self.asset = asset
-        self.price = price
-        self.last = last
-        self.time = time
-
 # loop to acquire ticker data
 while True:
     time.sleep(5)
     
-    prices = []
+    # Iterate through prices
     for i in range(len(tickers)):
+        response = requests.get(binanceAPI + str(tickers[i]))
+        price = json.loads(response.content())
+        
+    # TODO: Save response in list
         
     # "avgPrice?symbol=BTCUSDT"
