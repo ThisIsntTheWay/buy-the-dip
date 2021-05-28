@@ -1,22 +1,31 @@
-import asyncio
-import websockets
+import requests
 import time
-import ssl
+import json
 
-#https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md#general-wss-information
-binanceWSS = "wss://stream.binance.com:9443/ws"
+binanceAPI = "https://api.binance.com/api/v3/"
+tickers = [""]
 
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-
-async def wsClient():
-    async with websockets.connect(
-        binanceWSS, ssl=ssl_context
-    ) as websocket:
-        time.sleep(1)
-        
-        
-        
-        msg = await websocket.recv()
-        print(f"< {msg}")        
+# Read configuration
+with open('configuration.json') as config:
+    data = json.load(config)
     
-asyncio.get_event_loop().run_until_complete(wsClient())
+    # Populate tickers array
+    for i in range(len(data["tickers"])):
+        tickers.append(data["tickers"][i])
+
+# Create price class
+class Prices:
+    def __init__(asset, price, last, time):
+        self.asset = asset
+        self.price = price
+        self.last = last
+        self.time = time
+
+# loop to acquire ticker data
+while True:
+    time.sleep(5)
+    
+    prices = []
+    for i in range(len(tickers)):
+        
+    # "avgPrice?symbol=BTCUSDT"
