@@ -20,8 +20,8 @@ client = SniperGuy()
 # Background task
 async def taskMsg():
     await client.wait_until_ready()
-    bsc_channel = client.get_channel(837374595505455124)
-    await bsc_channel.send("Sniping for dips...")
+    channel = client.get_channel(837374595505455124)
+    await channel.send("Sniping for dips...")
 
 # Because client.run essentially locks up, everything must be done using background tasks.
 client.loop.create_task(taskMsg())
