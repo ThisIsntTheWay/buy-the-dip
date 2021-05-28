@@ -21,7 +21,7 @@
 	},
 	"dip_config": {
 		"mode": "threshold",
-		"interval": "1h",
+		"interval": 3600,
 		"threshold": 10,
 		"tiers": [
 			5,
