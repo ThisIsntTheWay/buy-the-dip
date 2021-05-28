@@ -84,6 +84,18 @@ def newInterval():
 #  Async
 
 async def intervalMonitor():
+    # Inform discord of bot going online
+    await asyncio.sleep(5)
+    
+    msg = "Sniper now snipin' for dips...\n"
+    if (data["exchanges"]["binance"]["enabled"]):
+        msg += "Binance: `" + str(tickersBinance) + "` \n"
+    if (data["exchanges"]["kraken"]["enabled"]):
+        msg += "Kraken: `" + str(tickersBinance) + "` \n"
+    msg += "Interval: `" + str(interval) + " seconds`, dip threshold: `" + str(dipThreshold) + "%`"
+    
+    await client.send_message(msg)
+    
     while True:
         await asyncio.sleep(1)
         # Check if an interval has passed
@@ -92,6 +104,8 @@ async def intervalMonitor():
         
     # Always get the new prices
 async def binanceMonitor():
+    await asyncio.sleep(8)
+    
     while True:
         await asyncio.sleep(3)
         
@@ -109,19 +123,18 @@ async def binanceMonitor():
                         
                         # Buy if the price has dipped below threshold and nothing has been bought before
                         if percentage < dipThreshold and not base.bought:
-                            msg = "Attempting to buy " + base.ticker + " at a price of " + str(priceNow) + " on " + base.exchange + ".\nIt has dipped below " + str(int(percentage)) + "%. @here"
-                            await asyncio.wait_for(client.send_message(msg), timeout=5)
                             print(getTime() + "       > Percentage below threshold, buying!")
                             
+                            # Notify discord
+                            msg = "Attempting to buy " + base.ticker + " at a price of " + str(priceNow) + " (" + str(int(percentage))+ "%) on " + base.exchange + "..."
+                            await asyncio.wait_for(client.send_message(msg), timeout=5)
+                            
+                            # Attempt to buy and otify discord and console about result
                             msg, status = binance.buy(base.ticker)
-                            print(msg)
-                            
+                            await client.send_message("@here " + msg)
+                            print(getTime() + " " + msg)
+                                
                             base.bought = True
-                            
-                            # Only set flag if binance did not return an error
-                            #if status:
-                            #    storeIntoDB("Binance", tickersBinance[i], getTime(), percentage)
-                            #    base.bought = True
                 
 # ------------------------------
 #  Classes
@@ -152,9 +165,9 @@ class Binance:
         
         # Handle response
         if response.status_code == 200:
-            return getTime() + " [BUY\u2705] SUCCESS: " + str(response.status_code) + " - "+ str(response.json()), True
+            return "[BUY\u2705] HTTP/" + str(response.status_code) + " - "+ str(response.json()), True
         else:
-            return getTime() + " [BUY\u274C] ERROR: " + str(response.status_code) + " - " + str(response.json()), False
+            return "[BUY\u274C] HTTP/" + str(response.status_code) + " - " + str(response.json()), False
 
 # Object to use as a base price for all intervals
 class basePrice:
