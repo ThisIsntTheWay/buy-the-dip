@@ -1,0 +1,10 @@
+{
+  "tickers": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+  "exchange_access": {
+    "api_key": "abcd",
+    "api_secret": "abcd"
+  }
+}
