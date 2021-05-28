@@ -4,6 +4,7 @@
 			"enabled": true,
 			"api_key": "abcd",
 			"api_secret": "abcd",
+			"stake": 100,
 			"tickers": [
 				"BTCUSDT",
 				"ETHUSDT"
@@ -13,6 +14,7 @@
 			"enabled": false,
 			"api_key": "abcd",
 			"api_secret": "abcd",
+			"stake": 100,
 			"tickers": [
 				"BTCUSDT",
 				"ETHUSDT"
