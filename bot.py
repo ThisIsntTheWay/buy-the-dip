@@ -13,6 +13,7 @@ dbMutation = database.cursor()
 binanceAPI = "https://api.binance.com/api/v3/"
 tickersBinance = []
 tickersKraken = []
+intervalPrice = []
 
 # Check if table exists
 dbMutation.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='history' ''')
@@ -46,7 +47,10 @@ def storeIntoDB(exchange, ticker, time, dip):
     # Store stuff into table
     dbMutation.execute("INSERT INTO history VALUES ('" + exchange + "', '" + ticker + "', '" + time + "', '" + dip + "')")
     dbMutation.commit()
-        
+    
+def getTime():
+    return time.strftime("%H:%M:%S", time.localtime())
+
 # Classes
 class Binance:    
     # Acquire price    
@@ -58,6 +62,12 @@ class Binance:
             return "ERROR: " + response.status_code
         else:
             return response.json()['price']
+        
+class basePrice:
+    def __init__(self, exchange, ticker, price):
+            self.exchange = exchange
+            self.ticker = ticker
+            self.price = price
 
 # Create instances of classes
 binance = Binance()
@@ -67,7 +77,8 @@ binance = Binance()
 # =======================================================
 
 # Acquire prices
-print("[LOOP] Beginning monitor...")
+print(getTime() + " [INFO] Interval set at: " + str(interval) + " seconds.")
+print(getTime() + " [LOOP] Beginning monitor...")
 freshInterval = True
 intervalStart = int(time.time())
 
@@ -81,8 +92,15 @@ while True:
         
     # Save price at start of interval
     if freshInterval:
-        print("[LOOP] New interval!")
+        print(getTime() + " [INFO] New interval!")
+        
+        # Populate intervalPrice[]
+        for i in range(len(tickersBinance)):
+            intervalPrice.append( basePrice('Binance', tickersBinance[i], binance.getPrice(tickersBinance[i])) )
+        
         freshInterval = False
         
     for i in range(len(tickersBinance)):
         print(tickersBinance[i] + " " + binance.getPrice(tickersBinance[i]))
+        
+        time.time()
