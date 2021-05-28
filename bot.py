@@ -3,6 +3,10 @@ import time
 import sqlite3
 import json
 
+# =======================================================
+# ===       INIT                                      ===
+# =======================================================
+
 database = sqlite3.connect('./botRecords.db')
 dbMutation = database.cursor()
 
@@ -13,10 +17,10 @@ tickersKraken = []
 # Check if table exists
 dbMutation.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='history' ''')
 if dbMutation.fetchone()[0]==1:
-    print('Table exists.')
+    print('[INIT] Table exists.')
 else:
     dbMutation.execute('''CREATE TABLE history ([ID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, [exchange] TEXT NOT NULL, [ticker] TEXT NOT NULL, [time] TEXT  NOT NULL, [dip] INTEGER)''')
-    print("Table created")
+    print('[INIT] Table created.')
 
 # Read configuration
 with open('configuration.json') as config:
@@ -31,6 +35,13 @@ with open('configuration.json') as config:
      for i in range(len(data["exchanges"]["kraken"]["tickers"])):
         tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
         
+    # Read misc config
+    interval = data["dip_config"]["interval"]        
+
+# =======================================================
+# ===       FUNC                                      ===
+# =======================================================
+
 def storeIntoDB(exchange, ticker, time, dip):
     # Store stuff into table
     dbMutation.execute("INSERT INTO history VALUES ('" + exchange + "', '" + ticker + "', '" + time + "', '" + dip + "')")
@@ -44,13 +55,34 @@ class Binance:
         
         # Handle response
         if not response.status_code == 200:
-            return "error acquiring price for " + str(ticker)
+            return "ERROR: " + response.status_code
         else:
             return response.json()['price']
 
 # Create instances of classes
 binance = Binance()
 
+# =======================================================
+# ===       MAIN                                      ===
+# =======================================================
+
 # Acquire prices
-for i in range(len(tickersBinance)):
-    print(tickersBinance[i] + " " + binance.getPrice(tickersBinance[i]))
+print("[LOOP] Beginning monitor...")
+freshInterval = True
+intervalStart = int(time.time())
+
+while True:
+    time.sleep(1)
+    
+    # Check if an interval has passed
+    if (int(time.time()) - intervalStart) > interval:
+        freshInterval = True
+        intervalStart = int(time.time())
+        
+    # Save price at start of interval
+    if freshInterval:
+        print("[LOOP] New interval!")
+        freshInterval = False
+        
+    for i in range(len(tickersBinance)):
+        print(tickersBinance[i] + " " + binance.getPrice(tickersBinance[i]))
