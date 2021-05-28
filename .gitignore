@@ -5,7 +5,10 @@ __pycache__/
 
 # C extensions
 *.so
+
+# Misc
 configuration.json
+*.db
 
 # Distribution / packaging
 .Python
