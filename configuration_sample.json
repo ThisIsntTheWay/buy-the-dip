@@ -21,15 +21,14 @@
 	},
 	"dip_config": {
 		"mode": "threshold",
+		"interval": "1h",
 		"threshold": 10,
-		"intervals_config": {
-			"intervals": [
-				5,
-				5,
-				10
-			]
-		}
-	},	
+		"tiers": [
+			5,
+			5,
+			10
+		]
+	},
 	"discord": {
 		"token": "token",
 		"channel": "channel_id"
