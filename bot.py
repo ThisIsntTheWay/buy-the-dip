@@ -4,6 +4,12 @@ import sqlite3
 import json
 import hmac
 import hashlib
+import asyncio
+
+import nest_asyncio
+nest_asyncio.apply()
+
+import discordBot as dBot
 
 # =======================================================
 # ===       INIT                                      ===
@@ -73,10 +79,53 @@ def newInterval():
     if (data["exchanges"]["binance"]["enabled"]):
         for i in range(len(tickersBinance)):
             intervalPrice.append( basePrice( 'Binance', tickersBinance[i], int(float(binance.getPrice(tickersBinance[i]))), False ) )
+
+# ------------------------------
+#  Async
+
+async def intervalMonitor():
+    while True:
+        await asyncio.sleep(1)
+        # Check if an interval has passed
+        if (int(time.time()) - intervalStart) > interval:
+            newInterval()
+        
+    # Always get the new prices
+async def binanceMonitor():
+    while True:
+        await asyncio.sleep(3)
+        
+        print(getTime() + " [PRIC] Querying binance...")
+        if (data["exchanges"]["binance"]["enabled"]):
+            for i in range(len(tickersBinance)):
+                priceNow = int(float(binance.getPrice(tickersBinance[i])))
+
+                # Check if the price is below the dip threshold
+                # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
+                for base in intervalPrice:
+                    if base.exchange == "Binance" and base.ticker == tickersBinance[i]:
+                        percentage = 100 * (priceNow - base.price) / base.price
+                        print(getTime() + "   > " + tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
+                        
+                        # Buy if the price has dipped below threshold and nothing has been bought before
+                        if percentage < dipThreshold and not base.bought:
+                            print(getTime() + "       > Percentage below threshold, buying!")
+                            
+                            msg, status = binance.buy(base.ticker)
+                            print(msg)
+                            
+                            base.bought = True
+                            
+                            # Only set flag if binance did not return an error
+                            #if status:
+                            #    storeIntoDB("Binance", tickersBinance[i], getTime(), percentage)
+                            #    base.bought = True
                 
-# Classes
+# ------------------------------
+#  Classes
+
 class Binance:    
-    # Acquire price    
+    # Acquire price
     def getPrice(self, ticker):
         response = requests.get(binanceAPI + str("ticker/price?symbol=") + str(ticker))
         
@@ -93,9 +142,7 @@ class Binance:
         paramString = paramString + "&signature=" + str(hash(paramString, data["exchanges"]["binance"]["api_secret"]))
         
         fullRequest = binanceAPI + "order?" + paramString
-        print(getTime() + " [INFO] " + fullRequest)
-        
-        print()
+        #print(getTime() + " [INFO] " + fullRequest)
         
         # Send POST
         headers = {'X-MBX-APIKEY': data["exchanges"]["binance"]["api_key"]}
@@ -123,44 +170,20 @@ binance = Binance()
 # ===       MAIN                                      ===
 # =======================================================
 
-# Acquire prices
 print(getTime() + " [INFO] Interval set at: " + str(interval) + " seconds.")
 print(getTime() + " [INFO] Percentage threshhold: " + str(dipThreshold) + "%")
 print(getTime() + " [LOOP] Beginning...")
 newInterval()
 
-while True:
-    time.sleep(1)
-    
-    # Check if an interval has passed
-    if (int(time.time()) - intervalStart) > interval:
-        newInterval()
- 
-    #for obj in intervalPrice:
-    #    print( obj.exchange, obj.ticker, obj.price, sep =' ' )
-        
-    # Always get the new prices
-    print(getTime() + " [PRIC] Querying binance...")
-    if (data["exchanges"]["binance"]["enabled"]):
-        for i in range(len(tickersBinance)):
-            priceNow = int(float(binance.getPrice(tickersBinance[i])))
+# Discord thing
+client = dBot.SniperGuy()
 
-            # Check if the price is below the dip threshold
-            # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
-            for base in intervalPrice:
-                if base.exchange == "Binance" and base.ticker == tickersBinance[i]:
-                    percentage = 100 * (priceNow - base.price) / base.price
-                    print(getTime() + "   > " + tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
-                    
-                    # Buy if the price has dipped below threshold and nothing has been bought before
-                    if percentage < dipThreshold and not base.bought:
-                        print(getTime() + "       > Percentage below threshold, buying!")
-                        
-                        msg, status = binance.buy(base.ticker)
-                        print(msg)
-                        
-                        # Only set flag if binance did not return an error
-                        if status:
-                            storeIntoDB("Binance", tickersBinance[i], getTime(), percentage)
-                            base.bought = True
-                        
+# Create tasks within discord.py asyncio loop
+client.loop.create_task(intervalMonitor())
+client.loop.create_task(binanceMonitor())
+client.run(data["discord"]["token"])
+
+print("END OF SCRIPT")
+
+#dBot.client.loop.create_task(dBot.taskDiscord(str(data["discord"]["channel"])))
+#dBot.client.run(str(data["discord"]["token"]))
