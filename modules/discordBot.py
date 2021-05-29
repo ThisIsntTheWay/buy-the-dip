@@ -33,4 +33,3 @@ client = SniperGuy()
 # Function to send a discord bot message from external modules
 async def sendMsgByProx(msg):
     await client.send_message(msg)
-    print("done")
