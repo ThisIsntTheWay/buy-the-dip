@@ -1,6 +1,8 @@
 # Buy the dip
-Are you tired of missing out on *juicy* dips in your sleep?  
-Or when you're at work?
+Are you tired of missing out on *juicy* dips when you're...
+ - ...sleeping?  
+ - ...at work?
+ - ...not checking the prices for 5 minutes?
 
 Do you want to outsource your DCA strategy to a computer?
 
