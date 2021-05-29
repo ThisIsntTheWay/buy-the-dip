@@ -42,12 +42,12 @@ async def intervalMonitor():
     # Inform discord of bot going online
     await asyncio.sleep(5)
     
-    msg = "Sniper now snipin' for dips...\n"
+    msg = "**Sniper now snipin' for dips...**\n"
     if (modConfig.data["exchanges"]["binance"]["enabled"]):
-        msg += "Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
+        msg += "> Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
-        msg += "Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
-    msg += "Interval: `" + str(modConfig.interval) + " seconds`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
+        msg += "> Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
+    msg += "> Interval: `" + str(modConfig.interval / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
     
     await dBot.sendMsgByProx(msg)
     
@@ -61,7 +61,7 @@ async def intervalMonitor():
 # ===       MAIN                                      ===
 # =======================================================
 
-print(utils.getTime() + " [INFO] Interval set at: " + str(modConfig.interval) + " seconds.")
+print(utils.getTime() + " [INFO] Interval set at: " + str(modConfig.interval / 3600) + "h.")
 print(utils.getTime() + " [INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
 print(utils.getTime() + " [LOOP] Beginning...")
 newInterval()
