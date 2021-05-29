@@ -9,6 +9,8 @@ __pycache__/
 # Misc
 configuration.json
 *.db
+*.cer
+*.pem
 
 # Distribution / packaging
 .Python
