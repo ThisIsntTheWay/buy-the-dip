@@ -64,6 +64,7 @@ async def intervalMonitor():
 print(utils.getTime() + " [INFO] Interval set at: " + str(modConfig.timeframe / 3600) + "h.")
 print(utils.getTime() + " [INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
 print(utils.getTime() + " [LOOP] Beginning...")
+print(utils.getTime() + " [NOTE] The first loop is always slow, please wait :)")
 newInterval()
 
 # Create tasks within discord.py asyncio loop
