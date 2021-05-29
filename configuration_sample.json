@@ -25,6 +25,7 @@
 		"timeframe": 3600,
 		"threshold": 10,
 		"mode": "threshold",
+		"interval": 5,
 		"tiers": [
 			5,
 			5,
