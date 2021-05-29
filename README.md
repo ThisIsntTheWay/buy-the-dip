@@ -21,7 +21,7 @@ This bot can do a few things!
  - Extensive configuration
 
 ### Usage
-Plesae refer to the [Wiki](https://github.com/ThisIsntTheWay/buy-the-dip/wiki) for proper usage of this bot.
+Please refer to the [wiki](https://github.com/ThisIsntTheWay/buy-the-dip/wiki) for proper usage of this bot.
   
 #### ToDo
 - [X] Implement support for binance
