@@ -5,7 +5,8 @@ import json
 # This file parses the json configuration
 tickersBinance = []
 tickersKraken = []
-intervalPrice = []
+tickersCoinbase = []
+timeframePrice = []
 
 # Read configuration
 with open('configuration.json') as config:
@@ -23,7 +24,7 @@ with open('configuration.json') as config:
             tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
         
     # Read misc config
-    interval = data["dip_config"]["interval"]
+    timeframe = data["dip_config"]["timeframe"]
     #dipThreshold = data["dip_config"]["threshold"]
     #dipThreshold = -dipThreshold
     dipThreshold = 5
