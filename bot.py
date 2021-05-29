@@ -50,7 +50,7 @@ async def intervalMonitor():
         msg += "Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
     msg += "Interval: `" + str(modConfig.interval) + " seconds`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
     
-    await client.send_message(msg)
+    await dBot.sendMsgByProx(msg)
     
     while True:
         await asyncio.sleep(1)
