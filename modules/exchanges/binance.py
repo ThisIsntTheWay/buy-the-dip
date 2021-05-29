@@ -76,10 +76,10 @@ class Binance:
         response = requests.post(fullRequest.encode(), headers=headers)
         
         # Handle response
-        if response.status_code == 200:
-            return "\u2705 " + str(response.json()), True
+        if response.status_code == 200:        
+            return "\u2705 [" + str(response.status_code) + "] " + str(response.json()), True
         else:
-            return "\u274C " + str(response.json()['result']), False           
+            return "\u274C [" + str(response.status_code) + "] " + str(response.json()), False           
 
 # Create instances
 binance = Binance()
