@@ -40,8 +40,8 @@ async def krakenMonitor():
                         
                         # Attempt to buy and otify discord and console about result
                         msg, status = kraken.buy(base.ticker, priceNow)
-                        await dBot.sendMsgByProx("@here " + msg)
                         print(utils.getTime() + " " + msg)
+                        await dBot.sendMsgByProx("-> `" + msg + "` @here")
                             
                         base.bought = True
 
@@ -99,9 +99,9 @@ class Kraken:
         
         # Handle response
         if response.status_code == 200:
-            return "\u2705 " + str(response.json()), True
+            return "\u2705 " + str(response.json()['result']), True
         else:
-            return "\u274C " + str(response.json()['result']), False        
+            return "\u274C " + str(response.json()), False        
 
 # Create instances
 kraken = Kraken()
