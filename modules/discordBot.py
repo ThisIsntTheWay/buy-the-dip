@@ -15,7 +15,7 @@ class SniperGuy(discord.Client):
         super().__init__(*args, **kwargs)
         
     async def on_ready(self):
-        print(getTime() + ' [BOT ]: Login was successful: ' + self.user.name + ' / ' + str(self.user.id))
+        print(getTime() + ' [BOT ] Login was successful: ' + self.user.name + ' / ' + str(self.user.id))
         
     async def on_message(self, message):
         if message.author.id == self.user.id:
@@ -27,3 +27,10 @@ class SniperGuy(discord.Client):
     async def send_message(self, message):
         channel = self.get_channel(int((data["discord"]["channel"])))
         await channel.send(message)
+
+client = SniperGuy()
+        
+# Function to send a discord bot message from external modules
+async def sendMsgByProx(msg):
+    await client.send_message(msg)
+    print("done")
