@@ -19,6 +19,9 @@ This bot can do a few things!
     - Coinbase `pending`
  - Discord integration
  - Extensive configuration
+
+### Usage
+Plesae refer to the [Wiki](https://github.com/ThisIsntTheWay/buy-the-dip/wiki) for proper usage of this bot.
   
 #### ToDo
 - [X] Implement support for binance
