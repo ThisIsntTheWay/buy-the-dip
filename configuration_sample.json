@@ -22,7 +22,7 @@
 		}
 	},
 	"dip_config": {
-		"interval": 3600,
+		"timeframe": 3600,
 		"threshold": 10,
 		"mode": "threshold",
 		"tiers": [

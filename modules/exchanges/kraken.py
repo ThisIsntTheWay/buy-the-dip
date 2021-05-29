@@ -27,7 +27,7 @@ async def krakenMonitor():
             priceNow = int(float(kraken.getPrice(modConfig.tickersKraken[i])))
 
             # Check if the price is below the dip threshold            
-            for base in modConfig.intervalPrice:
+            for base in modConfig.timeframePrice:
                 if base.exchange == "Kraken" and base.ticker == modConfig.tickersKraken[i]:
                     percentage = 100 * (priceNow - base.price) / base.price
                     print(utils.getTime() + "   > " + modConfig.tickersKraken[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")

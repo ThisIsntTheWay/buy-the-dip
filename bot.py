@@ -15,25 +15,25 @@ import modules.exchanges.kraken as modKraken
 # ===       INIT                                      ===
 # =======================================================
 
-intervalStart = int(time.time())
+timeframeStart = int(time.time())
 
 # =======================================================
 # ===       FUNC                                      ===
 # =======================================================
 
 def newInterval():
-    print(utils.getTime() + " [INFO] New interval!")
-    intervalStart = int(time.time())
+    print(utils.getTime() + " [INFO] New timeframe!")
+    timeframeStart = int(time.time())
 
-    # Populate modConfig.intervalPrice[] after clearing it
-    modConfig.intervalPrice.clear()
+    # Populate modConfig.timeframePrice[] after clearing it
+    modConfig.timeframePrice.clear()
     if (modConfig.data["exchanges"]["binance"]["enabled"]):
         for i in range(len(modConfig.tickersBinance)):
-            modConfig.intervalPrice.append( modConfig.basePrice( 'Binance', modConfig.tickersBinance[i], int(float(modBinance.binance.getPrice(modConfig.tickersBinance[i]))), False ) )
+            modConfig.timeframePrice.append( modConfig.basePrice( 'Binance', modConfig.tickersBinance[i], int(float(modBinance.binance.getPrice(modConfig.tickersBinance[i]))), False ) )
             
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
         for i in range(len(modConfig.tickersKraken)):
-            modConfig.intervalPrice.append( modConfig.basePrice( 'Kraken', modConfig.tickersKraken[i], int(float(modKraken.kraken.getPrice(modConfig.tickersKraken[i]))), False ) )
+            modConfig.timeframePrice.append( modConfig.basePrice( 'Kraken', modConfig.tickersKraken[i], int(float(modKraken.kraken.getPrice(modConfig.tickersKraken[i]))), False ) )
 
 # ------------------------------
 #  Async
@@ -47,21 +47,21 @@ async def intervalMonitor():
         msg += "> Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
         msg += "> Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
-    msg += "> Interval: `" + str(modConfig.interval / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
+    msg += "> Interval: `" + str(modConfig.timeframe / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
     
     await dBot.sendMsgByProx(msg)
     
     while True:
         await asyncio.sleep(1)
         # Check if an interval has passed
-        if (int(time.time()) - intervalStart) > modConfig.interval:
+        if (int(time.time()) - timeframeStart) > modConfig.timeframe:
             newInterval()
 
 # =======================================================
 # ===       MAIN                                      ===
 # =======================================================
 
-print(utils.getTime() + " [INFO] Interval set at: " + str(modConfig.interval / 3600) + "h.")
+print(utils.getTime() + " [INFO] Interval set at: " + str(modConfig.timeframe / 3600) + "h.")
 print(utils.getTime() + " [INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
 print(utils.getTime() + " [LOOP] Beginning...")
 newInterval()

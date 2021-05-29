@@ -28,7 +28,7 @@ async def binanceMonitor():
 
                 # Check if the price is below the dip threshold
                 # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
-                for base in jConfig.intervalPrice:
+                for base in jConfig.timeframePrice:
                     if base.exchange == "Binance" and base.ticker == jConfig.tickersBinance[i]:
                         percentage = 100 * (priceNow - base.price) / base.price
                         print(utils.getTime() + "   > " + jConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
