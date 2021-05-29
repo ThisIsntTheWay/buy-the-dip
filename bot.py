@@ -24,7 +24,7 @@ timeframeStart = int(time.time())
 # =======================================================
 
 def newInterval():
-    print(utils.getTime() + " [INFO] New timeframe!")
+    utils.log(" [INFO] New timeframe!")
     timeframeStart = int(time.time())
 
     # Populate modConfig.timeframePrice[] after clearing it
@@ -47,7 +47,7 @@ def newInterval():
                 modConfig.basePrice(
                     'Kraken', 
                     modConfig.tickersKraken[i],
-                    int(float(modBinance.binance.getPrice(modConfig.tickersKraken[i]))),
+                    int(float(modKraken.kraken.getPrice(modConfig.tickersKraken[i]))),
                     False,
                     0
                 )
@@ -79,10 +79,10 @@ async def intervalMonitor():
 # ===       MAIN                                      ===
 # =======================================================
 
-print(utils.getTime() + " [INFO] Interval set at: " + str(modConfig.timeframe / 3600) + "h.")
-print(utils.getTime() + " [INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
-print(utils.getTime() + " [LOOP] Beginning...")
-print(utils.getTime() + " [NOTE] The first loop is always slow, please wait :)")
+utils.log("[INFO] Interval set at: " + str(modConfig.timeframe / 3600) + "h.")
+utils.log("[INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
+utils.log("[LOOP] Beginning...")
+utils.log("[NOTE] The first loop is always slow, please wait :)")
 newInterval()
 
 # Create tasks within discord.py asyncio loop
@@ -96,10 +96,10 @@ if modConfig.data["exchanges"]["kraken"]["enabled"]:
 if dBot.discordActive:
     dBot.client.run(modConfig.data["discord"]["token"])
 else:
-    print(utils.getTime() + " [INFO] Discord integration is disabled.")
+    utils.log("[INFO] Discord integration is disabled.")
     dBot.client.loop.run_forever()
 
-print("END OF SCRIPT")
+utils.log("END OF SCRIPT")
 
 #dBot.client.loop.create_task(dBot.taskDiscord(str(modConfig.data["discord"]["channel"])))
 #dBot.client.run(str(modConfig.data["discord"]["token"]))

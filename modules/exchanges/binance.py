@@ -12,44 +12,49 @@ import modules.discordBot as dBot
 
 binanceAPI = "https://api.binance.com/api/v3/"
 
-def hash(query_string, secret):
-    return hmac.new(secret.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+# ------------------------------
+#  Async functions
 
 async def binanceMonitor():
     await asyncio.sleep(8)
     
     while True:
         await asyncio.sleep(3)
-        print(utils.getTime() + " [PRIC] Querying binance...")
+        utils.log("[PRIC] Querying binance...")
         
-        if (jConfig.data["exchanges"]["binance"]["enabled"]):
-            for i in range(len(jConfig.tickersBinance)):
-                try:
-                    priceNow = int(float(binance.getPrice(jConfig.tickersBinance[i])))
+        for i in range(len(jConfig.tickersBinance)):
+            try:
+                priceNow = int(float(binance.getPrice(jConfig.tickersBinance[i])))
 
-                    # Check if the price is below the dip threshold
-                    # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
-                    for base in jConfig.timeframePrice:
-                        if base.exchange == "Binance" and base.ticker == jConfig.tickersBinance[i]:
-                            percentage = 100 * (priceNow - base.price) / base.price
-                            print(utils.getTime() + "   > " + jConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
+                # Check if the price is below the dip threshold
+                # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
+                for base in jConfig.timeframePrice:
+                    if base.exchange == "Binance" and base.ticker == jConfig.tickersBinance[i]:
+                        percentage = 100 * (priceNow - base.price) / base.price
+                        utils.log("   > " + jConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
+                        
+                        # Buy if the price has dipped below threshold and nothing has been bought before
+                        if percentage < jConfig.dipThreshold and not base.bought:
+                            utils.log("       > Percentage below threshold, buying!")
                             
-                            # Buy if the price has dipped below threshold and nothing has been bought before
-                            if percentage < jConfig.dipThreshold and not base.bought:
-                                print(utils.getTime() + "       > Percentage below threshold, buying!")
+                            # Notify discord
+                            msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
+                            await dBot.sendMsgByProx(msg)
+                            
+                            # Attempt to buy and otify discord and console about result
+                            msg, status = binance.buy(base.ticker)
+                            utils.log(msg)
+                            await dBot.sendMsgByProx("> `" + msg + "` @here")
                                 
-                                # Notify discord
-                                msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                                await dBot.sendMsgByProx(msg)
-                                
-                                # Attempt to buy and otify discord and console about result
-                                msg, status = binance.buy(base.ticker)
-                                print(utils.getTime() + " " + msg)
-                                await dBot.sendMsgByProx("> `" + msg + "` @here")
-                                    
-                                base.bought = True
-                except:
-                    print(utils.getTime() + "[OhNo] An error occurred within binanceMonitor()")
+                            base.bought = True
+            except:
+                utils.log("[OhNo] An error occurred within binanceMonitor()")
+                
+# ------------------------------
+#  Functions
+
+def hash(query_string, secret):
+    return hmac.new(secret.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
                     
 # ------------------------------
 #  Classes

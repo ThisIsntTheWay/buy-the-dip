@@ -25,7 +25,7 @@ async def krakenMonitor():
     
     while True:
         await asyncio.sleep(3)        
-        print(utils.getTime() + " [PRIC] Querying kraken...")
+        utils.log("[PRIC] Querying kraken...")
         
         try:
             for i in range(len(modConfig.tickersKraken)):
@@ -35,11 +35,11 @@ async def krakenMonitor():
                 for base in modConfig.timeframePrice:
                     if base.exchange == "Kraken" and base.ticker == modConfig.tickersKraken[i]:
                         percentage = 100 * (priceNow - base.price) / base.price
-                        print(utils.getTime() + "   > " + modConfig.tickersKraken[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
+                        utils.log("   > " + modConfig.tickersKraken[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
                         
                         # Buy if the price has dipped below threshold and nothing has been bought before
                         if percentage < modConfig.dipThreshold and not base.bought:
-                            print(utils.getTime() + "       > Percentage below threshold, buying!")
+                            utils.log("       > Percentage below threshold, buying!")
                             
                             # Notify discord
                             msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
@@ -47,12 +47,12 @@ async def krakenMonitor():
                             
                             # Attempt to buy and otify discord and console about result
                             msg, status = kraken.buy(base.ticker, priceNow)
-                            print(utils.getTime() + " " + msg)
+                            utils.log(msg)
                             await dBot.sendMsgByProx("> `" + msg + "` @here")
                                 
                             base.bought = True
         except:
-            print(utils.getTime() + "[OhNo] An error occurred within binanceMonitor()")
+            utils.log("[OhNo] An error occurred within krakenMonitor()")
 
 # ------------------------------
 #  Functions
