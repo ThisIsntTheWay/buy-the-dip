@@ -1,6 +1,5 @@
 # bot.py
 import discord
-import asyncio
 import time
 import json
 

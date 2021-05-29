@@ -1,9 +1,4 @@
-import requests
 import time
-import sqlite3
-import json
-import hmac
-import hashlib
 import asyncio
 
 import nest_asyncio
