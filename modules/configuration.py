@@ -1,6 +1,9 @@
 # Configuration module
 
+import sys
 import json
+
+import modules.utils as utils
 
 # This file parses the json configuration
 tickersBinance = []
@@ -25,14 +28,33 @@ with open('configuration.json') as config:
         
     # Read misc config
     timeframe = data["dip_config"]["timeframe"]
-    #dipThreshold = data["dip_config"]["threshold"]
-    #dipThreshold = -dipThreshold
-    dipThreshold = 5
+    
+    dipMode = data["dip_config"]["mode"]
+    if dipMode == "threshold":
+        #dipThreshold = data["dip_config"]["threshold"]
+        #dipThreshold = -dipThreshold
+        dipThreshold = 5
+    elif dipMode == "tiered":
+        dipTiers = []
+        for i in range(len(data["dip_config"]["tiers"])):
+            dipTiers.append(data["dip_config"]["tiers"][i])
+            
+        utils.log("[X] dipMode \"" + dipMode + "\" not yet implemented!")
+        sys.exit()
+    elif dipMode == "interval":
+        dipInterval = ["dip_config"]["interval"]
+        
+        utils.log("[X] dipMode \"" + dipMode + "\" not yet implemented!")
+        sys.exit()
+    else:
+        utils.log("[X] dipMode \"" + dipMode + "\" is not known!")
+        sys.exit()
     
 # Object to use as a base price for all intervals
 class basePrice:
-    def __init__(self, exchange, ticker, price, bought):
+    def __init__(self, exchange, ticker, price, bought, timesBought):
         self.exchange = exchange
         self.ticker = ticker
         self.price = price
         self.bought = bought
+        self.timesBought = timesBought
