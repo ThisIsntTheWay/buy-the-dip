@@ -28,7 +28,7 @@ It is *not* getting the price data of the last *n* seconds, because the bot does
 ## Features
  - Multi exchange support
     - Binance
-    - Kraken `pending` 
+    - Kraken
     - Coinbase `pending`
  - Discord integration
  - Extensive configuration
@@ -38,7 +38,7 @@ Please refer to the [wiki](https://github.com/ThisIsntTheWay/buy-the-dip/wiki) f
   
 #### ToDo
 - [X] Implement support for binance
-- [ ] Implement support for kraken
+- [X] Implement support for kraken
 - [ ] Implement support for coinbase
 - [X] Implement buy logic
 - [ ] Add "tiered" dip mode
