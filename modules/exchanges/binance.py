@@ -20,8 +20,8 @@ async def binanceMonitor():
     
     while True:
         await asyncio.sleep(3)
-        
         print(utils.getTime() + " [PRIC] Querying binance...")
+        
         if (jConfig.data["exchanges"]["binance"]["enabled"]):
             for i in range(len(jConfig.tickersBinance)):
                 priceNow = int(float(binance.getPrice(jConfig.tickersBinance[i])))
