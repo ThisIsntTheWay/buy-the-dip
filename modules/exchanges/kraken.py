@@ -82,8 +82,7 @@ class Kraken:
             "ordertype": "market",
             "type": "buy",
             "volume": stake / priceNow,
-            "pair": ticker,
-            "validate": True
+            "pair": ticker
         }
                 #print(utils.getTime() + " [INFO] " + fullRequest)
         
@@ -98,10 +97,13 @@ class Kraken:
         response = requests.post(URI, headers=headers, data=requestBody)
         
         # Handle response
-        if response.status_code == 200:
-            return "\u2705 " + str(response.json()['result']), True
+        # > Because kraken is against standards, its API will NOT return HTTP/4xx on an error
+        #   As such, we need to check if error[] is empty or not
+        print(str(len(response.json()['error'])))
+        if not 'error' in response.json() or len(response.json()['error']) == 0:
+            return "\u2705 [" + str(response.status_code) + "] " + str(response.json()), True
         else:
-            return "\u274C " + str(response.json()), False        
+            return "\u274C [" + str(response.status_code) + "] " + str(response.json()), False    
 
 # Create instances
 kraken = Kraken()
