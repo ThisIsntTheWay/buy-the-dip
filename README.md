@@ -39,7 +39,7 @@ Please refer to the [wiki](https://github.com/ThisIsntTheWay/buy-the-dip/wiki) f
 #### ToDo
 - [X] Implement support for binance
 - [X] Implement support for kraken
-  - [ ] Investigate API errors
+  - [X] Investigate API errors
 - [ ] Implement support for coinbase
 - [X] Implement buy logic
 - [ ] Add "tiered" dip mode
