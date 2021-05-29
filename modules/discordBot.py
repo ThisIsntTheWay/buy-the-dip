@@ -6,6 +6,8 @@ import json
 with open('configuration.json') as config:
     data = json.load(config)
     
+discordActive = data["discord"]["enabled"]
+    
 def getTime():
     return time.strftime("%H:%M:%S", time.localtime())
 
@@ -31,4 +33,7 @@ client = SniperGuy()
         
 # Function to send a discord bot message from external modules
 async def sendMsgByProx(msg):
-    await client.send_message(msg)
+    if discordActive:
+        await client.send_message(msg)
+    else:
+        return "[X] Discord inactive"

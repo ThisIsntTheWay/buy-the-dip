@@ -73,8 +73,12 @@ if modConfig.data["exchanges"]["binance"]["enabled"]:
     
 if modConfig.data["exchanges"]["kraken"]["enabled"]:
     dBot.client.loop.create_task(modKraken.krakenMonitor())
-    
-dBot.client.run(modConfig.data["discord"]["token"])
+
+if dBot.discordActive:
+    dBot.client.run(modConfig.data["discord"]["token"])
+else:
+    print(utils.getTime() + " [INFO] Discord integration is disabled.")
+    dBot.client.loop.run_forever()
 
 print("END OF SCRIPT")
 

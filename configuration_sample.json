@@ -33,6 +33,7 @@
 		]
 	},
 	"discord": {
+		"enabled": false,
 		"token": "token",
 		"channel": "channel_id"
 	}
