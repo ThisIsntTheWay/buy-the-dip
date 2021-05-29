@@ -1,3 +1,5 @@
+# Main thing
+
 import time
 import asyncio
 
@@ -29,11 +31,27 @@ def newInterval():
     modConfig.timeframePrice.clear()
     if (modConfig.data["exchanges"]["binance"]["enabled"]):
         for i in range(len(modConfig.tickersBinance)):
-            modConfig.timeframePrice.append( modConfig.basePrice( 'Binance', modConfig.tickersBinance[i], int(float(modBinance.binance.getPrice(modConfig.tickersBinance[i]))), False ) )
+            modConfig.timeframePrice.append(
+                modConfig.basePrice(
+                    'Binance', 
+                    modConfig.tickersBinance[i],
+                    int(float(modBinance.binance.getPrice(modConfig.tickersBinance[i]))),
+                    False,
+                    0
+                )
+            )
             
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
         for i in range(len(modConfig.tickersKraken)):
-            modConfig.timeframePrice.append( modConfig.basePrice( 'Kraken', modConfig.tickersKraken[i], int(float(modKraken.kraken.getPrice(modConfig.tickersKraken[i]))), False ) )
+            modConfig.timeframePrice.append(
+                modConfig.basePrice(
+                    'Kraken', 
+                    modConfig.tickersKraken[i],
+                    int(float(modBinance.binance.getPrice(modConfig.tickersKraken[i]))),
+                    False,
+                    0
+                )
+            )
 
 # ------------------------------
 #  Async
