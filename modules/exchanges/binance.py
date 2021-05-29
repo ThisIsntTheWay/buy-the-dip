@@ -24,30 +24,33 @@ async def binanceMonitor():
         
         if (jConfig.data["exchanges"]["binance"]["enabled"]):
             for i in range(len(jConfig.tickersBinance)):
-                priceNow = int(float(binance.getPrice(jConfig.tickersBinance[i])))
+                try:
+                    priceNow = int(float(binance.getPrice(jConfig.tickersBinance[i])))
 
-                # Check if the price is below the dip threshold
-                # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
-                for base in jConfig.timeframePrice:
-                    if base.exchange == "Binance" and base.ticker == jConfig.tickersBinance[i]:
-                        percentage = 100 * (priceNow - base.price) / base.price
-                        print(utils.getTime() + "   > " + jConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
-                        
-                        # Buy if the price has dipped below threshold and nothing has been bought before
-                        if percentage < jConfig.dipThreshold and not base.bought:
-                            print(utils.getTime() + "       > Percentage below threshold, buying!")
+                    # Check if the price is below the dip threshold
+                    # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
+                    for base in jConfig.timeframePrice:
+                        if base.exchange == "Binance" and base.ticker == jConfig.tickersBinance[i]:
+                            percentage = 100 * (priceNow - base.price) / base.price
+                            print(utils.getTime() + "   > " + jConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
                             
-                            # Notify discord
-                            msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                            await dBot.sendMsgByProx(msg)
-                            
-                            # Attempt to buy and otify discord and console about result
-                            msg, status = binance.buy(base.ticker)
-                            print(utils.getTime() + " " + msg)
-                            await dBot.sendMsgByProx("> `" + msg + "` @here")
+                            # Buy if the price has dipped below threshold and nothing has been bought before
+                            if percentage < jConfig.dipThreshold and not base.bought:
+                                print(utils.getTime() + "       > Percentage below threshold, buying!")
                                 
-                            base.bought = True
-                
+                                # Notify discord
+                                msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
+                                await dBot.sendMsgByProx(msg)
+                                
+                                # Attempt to buy and otify discord and console about result
+                                msg, status = binance.buy(base.ticker)
+                                print(utils.getTime() + " " + msg)
+                                await dBot.sendMsgByProx("> `" + msg + "` @here")
+                                    
+                                base.bought = True
+                except:
+                    print(utils.getTime() + "[OhNo] An error occurred within binanceMonitor()")
+                    
 # ------------------------------
 #  Classes
 
