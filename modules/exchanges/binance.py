@@ -44,7 +44,7 @@ async def binanceMonitor():
                             # Attempt to buy and otify discord and console about result
                             msg, status = binance.buy(base.ticker)
                             print(utils.getTime() + " " + msg)
-                            await dBot.sendMsgByProx("-> `" + msg + "` @here")
+                            await dBot.sendMsgByProx("> `" + msg + "` @here")
                                 
                             base.bought = True
                 
