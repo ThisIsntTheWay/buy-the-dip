@@ -1,4 +1,5 @@
-# bot.py
+# Discord bot module
+
 import discord
 import time
 import json
