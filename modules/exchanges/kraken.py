@@ -8,6 +8,8 @@ import time
 import base64
 import urllib.parse
 
+from requests.api import head
+
 import modules.utils as utils
 import modules.configuration as modConfig
 import modules.discordBot as dBot
@@ -41,7 +43,7 @@ async def krakenMonitor():
                         # Attempt to buy and otify discord and console about result
                         msg, status = kraken.buy(base.ticker, priceNow)
                         print(utils.getTime() + " " + msg)
-                        await dBot.sendMsgByProx("-> `" + msg + "` @here")
+                        await dBot.sendMsgByProx("> `" + msg + "` @here")
                             
                         base.bought = True
 
@@ -53,12 +55,14 @@ def getSignature(urlpath, data, secret):
     mac = hmac.new(base64.b64decode(secret), message, hashlib.sha512)
     sigdigest = base64.b64encode(mac.digest())
     return sigdigest.decode()
+
 # ------------------------------
 #  Classes
 
 class Kraken:    
     # Acquire price
     def getPrice(self, ticker):
+        # Use request with fiddler:  'proxies={"http": "http://127.0.0.1:8888", "https":"http:127.0.0.1:8888"}, verify=r"FiddlerRoot.pem"'
         response = requests.get(krakenAPI + str("public/Ticker?pair=") + str(ticker))
         
         # Handle response
@@ -68,7 +72,7 @@ class Kraken:
             # It's stupid >:(
         
             rTicker = list(response.json()["result"].keys())[0]
-            return response.json()['result'][rTicker]['o']
+            return response.json()['result'][rTicker]['c'][0]
         else:
             return "HTTP/" + str(response.status_code) + " - " + str(response.json()), False
     
@@ -90,18 +94,21 @@ class Kraken:
         signature = getSignature(URI, requestBody, modConfig.data["exchanges"]["kraken"]["api_secret"])
         
         # Send POST
-        headers = {
-            'API-Key': modConfig.data["exchanges"]["kraken"]["api_key"],
-            'API-Sign': signature
-        }
-        response = requests.post(URI, headers=headers, data=requestBody)
+        requestHeaders = {
+            'API-Key': str(modConfig.data["exchanges"]["kraken"]["api_key"]),
+            'API-Sign': signature,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }        
+        # URL-encode request body
+        #requestBody = urllib.parse.urlencode(requestBody)
+        
+        response = requests.post(URI, headers=requestHeaders, data=requestBody)
         
         # Handle response
         # > Because kraken is against standards, its API will NOT return HTTP/4xx on an error
         #   As such, we need to check if error[] is empty or not
-        print(str(len(response.json()['error'])))
-        if not 'error' in response.json() or len(response.json()['error']) == 0:
-            return "\u2705 [" + str(response.status_code) + "] " + str(response.json()), True
+        if len(response.json()['error']) == 0:
+            return "\u2705 [" + str(response.status_code) + "] " + str(response.json()['result']), True
         else:
             return "\u274C [" + str(response.status_code) + "] " + str(response.json()), False    
 
