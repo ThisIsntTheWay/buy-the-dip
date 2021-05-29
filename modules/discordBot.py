@@ -35,5 +35,3 @@ client = SniperGuy()
 async def sendMsgByProx(msg):
     if discordActive:
         await client.send_message(msg)
-    else:
-        return "[X] Discord inactive"
