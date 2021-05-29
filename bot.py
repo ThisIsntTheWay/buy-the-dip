@@ -9,6 +9,7 @@ import modules.configuration as modConfig
 import modules.database as modDb
 import modules.utils as utils
 import modules.exchanges.binance as modBinance
+import modules.exchanges.kraken as modKraken
 
 # =======================================================
 # ===       INIT                                      ===
@@ -26,10 +27,13 @@ def newInterval():
 
     # Populate modConfig.intervalPrice[] after clearing it
     modConfig.intervalPrice.clear()
-
     if (modConfig.data["exchanges"]["binance"]["enabled"]):
         for i in range(len(modConfig.tickersBinance)):
             modConfig.intervalPrice.append( modConfig.basePrice( 'Binance', modConfig.tickersBinance[i], int(float(modBinance.binance.getPrice(modConfig.tickersBinance[i]))), False ) )
+            
+    if (modConfig.data["exchanges"]["kraken"]["enabled"]):
+        for i in range(len(modConfig.tickersKraken)):
+            modConfig.intervalPrice.append( modConfig.basePrice( 'Kraken', modConfig.tickersKraken[i], int(float(modKraken.kraken.getPrice(modConfig.tickersKraken[i]))), False ) )
 
 # ------------------------------
 #  Async
@@ -42,7 +46,7 @@ async def intervalMonitor():
     if (modConfig.data["exchanges"]["binance"]["enabled"]):
         msg += "Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
-        msg += "Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
+        msg += "Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
     msg += "Interval: `" + str(modConfig.interval) + " seconds`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
     
     await dBot.sendMsgByProx(msg)
@@ -58,13 +62,18 @@ async def intervalMonitor():
 # =======================================================
 
 print(utils.getTime() + " [INFO] Interval set at: " + str(modConfig.interval) + " seconds.")
-print(utils.getTime() + " [INFO] Percentage threshhold: " + str(modConfig.dipThreshold) + "%")
+print(utils.getTime() + " [INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
 print(utils.getTime() + " [LOOP] Beginning...")
 newInterval()
 
 # Create tasks within discord.py asyncio loop
 dBot.client.loop.create_task(intervalMonitor())
-dBot.client.loop.create_task(modBinance.binanceMonitor())
+if modConfig.data["exchanges"]["binance"]["enabled"]:
+    dBot.client.loop.create_task(modBinance.binanceMonitor())
+    
+if modConfig.data["exchanges"]["kraken"]["enabled"]:
+    dBot.client.loop.create_task(modKraken.krakenMonitor())
+    
 dBot.client.run(modConfig.data["discord"]["token"])
 
 print("END OF SCRIPT")
