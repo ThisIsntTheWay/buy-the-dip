@@ -1,11 +1,11 @@
 # Configuration module
+# This file parses the json configuration
 
 import sys
 import json
 
 import modules.utils as utils
 
-# This file parses the json configuration
 tickersBinance = []
 tickersKraken = []
 tickersCoinbase = []
