@@ -24,7 +24,7 @@ timeframeStart = int(time.time())
 # =======================================================
 
 def newInterval():
-    utils.log(" [INFO] New timeframe!")
+    utils.log("[INFO] New timeframe!")
     timeframeStart = int(time.time())
 
     # Populate modConfig.timeframePrice[] after clearing it
@@ -81,8 +81,8 @@ async def intervalMonitor():
 
 utils.log("[INFO] Interval set at: " + str(modConfig.timeframe / 3600) + "h.")
 utils.log("[INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
+utils.log("[NOTE] The first loop is always slower to start!")
 utils.log("[LOOP] Beginning...")
-utils.log("[NOTE] The first loop is always slow, please wait :)")
 newInterval()
 
 # Create tasks within discord.py asyncio loop
