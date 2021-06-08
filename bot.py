@@ -65,21 +65,22 @@ async def intervalMonitor():
         msg += "> Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
         msg += "> Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
-    msg += "> Interval: `" + str(modConfig.timeframe / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
+    msg += "> Timeframe: `" + str(modConfig.timeframe / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
     
-    await dBot.sendMsgByProx(msg)
+    await dBot.sendMsgByProxy(msg)
     
     while True:
         await asyncio.sleep(1)
         # Check if an interval has passed
         if (int(time.time()) - timeframeStart) > modConfig.timeframe:
+            await dBot.sendMsgByProxy("Starting a new timeframe.")
             newInterval()
 
 # =======================================================
 # ===       MAIN                                      ===
 # =======================================================
 
-utils.log("[INFO] Interval set at: " + str(modConfig.timeframe / 3600) + "h.")
+utils.log("[INFO] Timeframe set at: " + str(modConfig.timeframe / 3600) + "h.")
 utils.log("[INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
 utils.log("[NOTE] The first loop is always slower to start!")
 utils.log("[LOOP] Beginning...")
