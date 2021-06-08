@@ -51,8 +51,8 @@ async def krakenMonitor():
                             await dBot.sendMsgByProx("> `" + msg + "` @here")
                                 
                             base.bought = True
-        except:
-            utils.log("[OhNo] An error occurred within krakenMonitor()")
+        except Exception as e:
+            utils.log("[OhNo] An error occurred within krakenMonitor(): " + str(e))
 
 # ------------------------------
 #  Functions
@@ -96,6 +96,11 @@ class Kraken:
     
     def buy(self, ticker, priceNow):
         stake = modConfig.data["exchanges"]["kraken"]["stake"]
+        if stake < 1:
+            return "\u274C Stake is less than 1! (Current: " + str(stake) + ")", False
+        
+        #print("" + str(stake / priceNow))
+        #print("volume: " + str(stake / priceNow) + " calculated using STAKE (" + str(stake) + ") and PRICENOW (" + str(priceNow) + ")")
         
         response = kraken_request('/0/private/AddOrder', {
             "nonce": str(int(1000*time.time())),
@@ -111,7 +116,7 @@ class Kraken:
         if len(response.json()['error']) == 0:
             return "\u2705 [" + str(response.status_code) + "] " + str(response.json()['result']), True
         else:
-            return "\u274C [" + str(response.status_code) + "] " + str(response.json()), False    
+            return "\u274C [" + str(response.status_code) + "] " + str(response.json()), False
 
 # Create instances
 kraken = Kraken()

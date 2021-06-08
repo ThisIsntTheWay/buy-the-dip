@@ -47,8 +47,8 @@ async def binanceMonitor():
                             await dBot.sendMsgByProx("> `" + msg + "` @here")
                                 
                             base.bought = True
-            except:
-                utils.log("[OhNo] An error occurred within binanceMonitor()")
+            except Exception as e:
+                utils.log("[OhNo] An error occurred within binanceMonitor(): " + str(e))
                 
 # ------------------------------
 #  Functions
@@ -73,6 +73,9 @@ class Binance:
     def buy(self, ticker):
         # Assemble parameter string
         stake = jConfig.data["exchanges"]["binance"]["stake"]
+        if stake < 1:
+            return "\u274C Stake is less than 1! (Current: " + str(stake) + ")", False
+        
         paramString = "symbol=" + str(ticker) + "&side=BUY&type=MARKET&quoteOrderQty=" + str(stake) + "&timestamp=" + str(int(time.time() * 1000))
         paramString = paramString + "&signature=" + str(hash(paramString, jConfig.data["exchanges"]["binance"]["api_secret"]))
         
