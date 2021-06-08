@@ -31,9 +31,9 @@ with open('configuration.json') as config:
     
     dipMode = data["dip_config"]["mode"]
     if dipMode == "threshold":
-        #dipThreshold = data["dip_config"]["threshold"]
-        #dipThreshold = -dipThreshold
-        dipThreshold = 5
+        dipThreshold = data["dip_config"]["threshold"]
+        dipThreshold = -dipThreshold
+        #dipThreshold = 5
     elif dipMode == "tiered":
         dipTiers = []
         for i in range(len(data["dip_config"]["tiers"])):
@@ -42,7 +42,7 @@ with open('configuration.json') as config:
         utils.log("[X] dipMode \"" + dipMode + "\" not yet implemented!")
         sys.exit()
     elif dipMode == "interval":
-        dipInterval = ["dip_config"]["interval"]
+        dipInterval = data["dip_config"]["interval"]
         
         utils.log("[X] dipMode \"" + dipMode + "\" not yet implemented!")
         sys.exit()
