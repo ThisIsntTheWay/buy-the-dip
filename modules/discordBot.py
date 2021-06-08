@@ -1,13 +1,11 @@
 # Discord bot module
-
-import discord
-import asyncio
 from discord.ext.commands import Bot
 
 import modules.utils as utils
 import modules.configuration as config
     
 discordActive = config.data["discord"]["enabled"]
+percentageBuffer = []
 
 client = Bot('!')
 
@@ -23,16 +21,12 @@ async def on_message(message):
     if message.content.startswith('!ping'):
         await message.reply('Pong', mention_author=True)
 
-@client.command(pass_context = True)
-async def clear(ctx, number):
-    print("clear called")
-    number = int(number) #Converting the amount of messages to delete to an integer
-    counter = 0
-    async for x in client.logs_from(ctx.message.channel, limit = number):
-        if counter < number:
-            await client.delete_message(x)
-            counter += 1
-            await asyncio.sleep(1.2) #1.2 second timer so the deleting process can be even
+@client.command()
+async def percentage(ctx, ticker):
+    print("percentage")
+    ticker = str(ticker)
+    
+    await ctx.send('Percentage for this ticker is: ')
 
         
 # Function to send a discord bot message from external modules
