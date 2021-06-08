@@ -6,10 +6,10 @@ import json
 import modules.utils as utils
 
 # This file parses the json configuration
-tickersBinance = []
-tickersKraken = []
-tickersCoinbase = []
-timeframePrice = []
+allTickers = []
+
+# Unified ticker[]
+# a = [["binance", ["ETHUSDT", "BTCUSDT"]], ["kraken", ["ETHCHF", "BTCCHF"]]]
 
 # Read configuration
 with open('configuration.json') as config:
@@ -18,13 +18,31 @@ with open('configuration.json') as config:
     # Populate ticker arrays
     # Binance
     if (data["exchanges"]["binance"]["enabled"]):
-        for i in range(len(data["exchanges"]["binance"]["tickers"])):
-            tickersBinance.append(data["exchanges"]["binance"]["tickers"][i])
+        allTickers.append(["binance"])
+        allTickers[0].append(data["exchanges"]["binance"]["tickers"])
     
     # Kraken
     if (data["exchanges"]["kraken"]["enabled"]):
-        for i in range(len(data["exchanges"]["kraken"]["tickers"])):
-            tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
+        allTickers.append(["kraken"])
+        
+        # Determine the correct index of allTickers
+        if allTickers[0][0] == "binance":
+            allTickers[1].append(data["exchanges"]["kraken"]["tickers"])
+        else:
+            allTickers[0].append(data["exchanges"]["kraken"]["tickers"])
+    
+    # Coinbase
+    if (data["exchanges"]["coinbase"]["enabled"]):
+        allTickers.append(["coinbase"])
+        
+        # Determine the correct index of allTickers
+        if allTickers[0][0] == "binance":
+            if allTickers[1][0] == "kraken":
+                allTickers[2].append(data["exchanges"]["coinbase"]["tickers"])
+            else:
+                allTickers[1].append(data["exchanges"]["coinbase"]["tickers"])
+        else:
+            allTickers[0].append(data["exchanges"]["kraken"]["tickers"])
         
     # Read misc config
     timeframe = data["dip_config"]["timeframe"]
