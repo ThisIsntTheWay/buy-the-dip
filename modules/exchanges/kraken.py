@@ -41,14 +41,13 @@ async def krakenMonitor():
                         if percentage < modConfig.dipThreshold and not base.bought:
                             utils.log("       > Percentage below threshold, buying!")
                             
-                            # Notify discord
                             msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                            await dBot.sendMsgByProx(msg)
+                            await dBot.sendMsgByProxy(msg)
                             
                             # Attempt to buy and otify discord and console about result
                             msg, status = kraken.buy(base.ticker, priceNow)
                             utils.log(msg)
-                            await dBot.sendMsgByProx("> `" + msg + "` @here")
+                            await dBot.sendMsgByProxy("> `" + msg + "` @here")
                                 
                             base.bought = True
         except Exception as e:
@@ -57,6 +56,7 @@ async def krakenMonitor():
 # ------------------------------
 #  Functions
 
+# Copied straight from the kraken API docs
 def getSignature(urlpath, data, secret):
     postdata = urllib.parse.urlencode(data)
     encoded = (str(data['nonce']) + postdata).encode()
@@ -77,15 +77,14 @@ def kraken_request(uri_path, data, api_key, api_sec):
 # ------------------------------
 #  Classes
 
-class Kraken:    
-    # Acquire price
+class Kraken:
     def getPrice(self, ticker):
         # Use request with fiddler:  'proxies={"http": "http://127.0.0.1:8888", "https":"http:127.0.0.1:8888"}, verify=r"FiddlerRoot.pem"'
         response = requests.get(krakenAPI + str("/0/public/Ticker?pair=") + str(ticker))
         
         # Handle response
         if response.status_code == 200:
-            # Kraken is hipster and doesn't necessarily return a ticker we except (Eg: I want BTCUSDT, I get *XXBT*USD)
+            # Kraken is hipster and doesn't necessarily return a ticker we except (Eg: want BTCUSDT, get *XXBT*USD)
             # As such, we need to save all keys on the second level (after 'result') into a list and access the first index, which is the ticker we want.
             # It's stupid >:(
         
