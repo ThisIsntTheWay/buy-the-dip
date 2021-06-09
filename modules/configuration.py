@@ -9,10 +9,12 @@ import modules.utils as utils
 tickersBinance = []
 tickersKraken = []
 tickersCoinbase = []
+
 timeframePrice = []
 timeframeStart = 0
+timeframeNum = 0
 
-# Read configuration
+# Read config
 with open('configuration.json') as config:
     data = json.load(config)
     
@@ -26,8 +28,8 @@ with open('configuration.json') as config:
         tickersKraken.append(data["exchanges"]["kraken"]["tickers"])
         
     # Coinbase
-    if (data["exchanges"]["coinbase"]["enabled"]):
-        tickersKraken.append(data["exchanges"]["coinbase"]["tickers"])
+    #if (data["exchanges"]["coinbase"]["enabled"]):
+    #   tickersKraken.append(data["exchanges"]["coinbase"]["tickers"])
         
     # Read misc config
     timeframe = data["dip_config"]["timeframe"]
