@@ -21,11 +21,13 @@ with open('configuration.json') as config:
     # Populate ticker arrays
     # Binance
     if (data["exchanges"]["binance"]["enabled"]):
-        tickersBinance.append(data["exchanges"]["binance"]["tickers"])
+        for i in range(len(data["exchanges"]["binance"]["tickers"])):
+            tickersBinance.append(data["exchanges"]["binance"]["tickers"][i])
     
     # Kraken
     if (data["exchanges"]["kraken"]["enabled"]):
-        tickersKraken.append(data["exchanges"]["kraken"]["tickers"])
+        for i in range(len(data["exchanges"]["kraken"]["tickers"])):
+            tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
         
     # Coinbase
     #if (data["exchanges"]["coinbase"]["enabled"]):
