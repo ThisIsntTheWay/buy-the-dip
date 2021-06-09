@@ -19,13 +19,15 @@ with open('configuration.json') as config:
     # Populate ticker arrays
     # Binance
     if (data["exchanges"]["binance"]["enabled"]):
-        for i in range(len(data["exchanges"]["binance"]["tickers"])):
-            tickersBinance.append(data["exchanges"]["binance"]["tickers"][i])
+        tickersBinance.append(data["exchanges"]["binance"]["tickers"])
     
     # Kraken
     if (data["exchanges"]["kraken"]["enabled"]):
-        for i in range(len(data["exchanges"]["kraken"]["tickers"])):
-            tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
+        tickersKraken.append(data["exchanges"]["kraken"]["tickers"])
+        
+    # Coinbase
+    if (data["exchanges"]["coinbase"]["enabled"]):
+        tickersKraken.append(data["exchanges"]["coinbase"]["tickers"])
         
     # Read misc config
     timeframe = data["dip_config"]["timeframe"]
