@@ -26,6 +26,7 @@ modConfig.timeframeStart = int(time.time())
 def newInterval():
     utils.log("[INFO] New timeframe!")
     modConfig.timeframeStart = int(time.time())
+    modConfig.timeframeNum += 1
 
     # Populate modConfig.timeframePrice[] after clearing it
     modConfig.timeframePrice.clear()
