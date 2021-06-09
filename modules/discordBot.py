@@ -42,12 +42,12 @@ async def show_config(ctx):
         msg += "> Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
     msg += "> Timeframe: `" + str(modConfig.timeframe / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
     
-    await ctx.reply(msg)
+    await ctx.reply(msg, mention_author=False)
 
 @client.command(name='percentage', help='Get price change as percentage of specified ticker.')
 async def percentage(ctx, ticker=None):
     if ticker is None:
-        return await ctx.send('Missing argument: `ticker`.')
+        return await ctx.send('Missing argument: `ticker`')
     
     print("percentage")
     ticker = str(ticker)
@@ -59,7 +59,7 @@ async def timeframe(ctx):
     print("timeframe")
     
     timeDiff = modConfig.timeframe - (int(time.time()) - modConfig.timeframeStart) 
-    msg = "Timeframe ("+ str(modConfig.timeframe / 3600) +"h) will expire in: `" + str(round(timeDiff / 3600, 2)) + "h / " + str(timeDiff) + "s`."
+    msg = "Timeframe (`"+ str(modConfig.timeframe / 3600) +"h`) will expire in: `" + str(round(timeDiff / 3600, 2)) + "h / " + str(timeDiff) + "s`."
     
     await ctx.send(msg)
 
