@@ -59,15 +59,15 @@ async def timeframe(ctx):
     print("timeframe")
     
     timeDiff = modConfig.timeframe - (int(time.time()) - modConfig.timeframeStart) 
-    msg = "Timeframe (`"+ str(modConfig.timeframe / 3600) +"h`) will expire in: `" + str(round(timeDiff / 3600, 2)) + "h / " + str(timeDiff) + "s`."
+    msg = "Timeframe (`"+ str(modConfig.timeframe / 3600) +"h`) will expire in: `" + str(round(timeDiff / 3600, 2)) + "h` / `" + str(timeDiff) + "s`."
     
     await ctx.send(msg)
 
 @client.command(name='nuke', help='Completely nuke text channel.')
 @has_permissions(manage_messages=True)  
-async def nuke(ctx):
+async def nuke(ctx):        
     await ctx.channel.purge(limit=600)
-    await ctx.send('Done purging this channel.')
+    await ctx.send('Done purging this channel.')        
     
 @nuke.error
 async def nuke_error(error, ctx):
