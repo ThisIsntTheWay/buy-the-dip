@@ -31,6 +31,18 @@ async def on_message(message):
 @client.command(name='ping', help='Have the bot confirm it\'s still alive.', pass_context=True)
 async def ping(ctx):
     await ctx.reply("Pong!", mention_author=True)
+    
+
+@client.command(name='show_config', help='Show the running configuration.')
+async def show_config(ctx):
+    msg = ""
+    if (modConfig.data["exchanges"]["binance"]["enabled"]):
+        msg += "> Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
+    if (modConfig.data["exchanges"]["kraken"]["enabled"]):
+        msg += "> Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
+    msg += "> Timeframe: `" + str(modConfig.timeframe / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
+    
+    await ctx.reply(msg)
 
 @client.command(name='percentage', help='Get price change as percentage of specified ticker.')
 async def percentage(ctx, ticker=None):
@@ -42,12 +54,12 @@ async def percentage(ctx, ticker=None):
     
     await ctx.send('Percentage for this ticker is: ')
     
-@client.command(name='timeleft', help='Get time left of the current timeframe.')
-async def timeleft(ctx):
-    print("timeleft")
+@client.command(name='timeframe', help='Get time left in the current timeframe.')
+async def timeframe(ctx):
+    print("timeframe")
     
     timeDiff = modConfig.timeframe - (int(time.time()) - modConfig.timeframeStart) 
-    msg = "Timeframe will expire in: `" + str(round(timeDiff / 3600, 2)) + "h / " + str(timeDiff) + "s`."
+    msg = "Timeframe ("+ str(modConfig.timeframe / 3600) +"h) will expire in: `" + str(round(timeDiff / 3600, 2)) + "h / " + str(timeDiff) + "s`."
     
     await ctx.send(msg)
 
@@ -58,7 +70,7 @@ async def nuke(ctx):
     await ctx.send('Done purging this channel.')
     
 @nuke.error
-async def kick_error(error, ctx):
+async def nuke_error(error, ctx):
    if isinstance(error, MissingPermissions):
        await ctx.send("You are not authorized to use this command.")
 
