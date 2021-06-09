@@ -10,6 +10,7 @@ tickersBinance = []
 tickersKraken = []
 tickersCoinbase = []
 timeframePrice = []
+timeframeStart = 0
 
 # Read configuration
 with open('configuration.json') as config:

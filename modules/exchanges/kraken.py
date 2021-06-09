@@ -13,7 +13,7 @@ from requests.api import head
 
 import modules.utils as utils
 import modules.configuration as modConfig
-import modules.discordBot as dBot
+import modules.discordBot as modBot
 
 krakenAPI = "https://api.kraken.com"
 
@@ -42,12 +42,12 @@ async def krakenMonitor():
                             utils.log("       > Percentage below threshold, buying!")
                             
                             msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                            await dBot.sendMsgByProxy(msg)
+                            await modBot.sendMsgByProxy(msg)
                             
                             # Attempt to buy and otify discord and console about result
                             msg, status = kraken.buy(base.ticker, priceNow)
                             utils.log(msg)
-                            await dBot.sendMsgByProxy("> `" + msg + "` @here")
+                            await modBot.sendMsgByProxy("> `" + msg + "` @here")
                                 
                             base.bought = True
         except Exception as e:

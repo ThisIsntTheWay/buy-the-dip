@@ -7,8 +7,8 @@ import requests
 import time
 
 import modules.utils as utils
-import modules.configuration as jConfig
-import modules.discordBot as dBot
+import modules.configuration as modConfig
+import modules.discordBot as modBot
 
 binanceAPI = "https://api.binance.com/api/v3/"
 
@@ -22,29 +22,29 @@ async def binanceMonitor():
         await asyncio.sleep(3)
         utils.log("[PRIC] Querying binance...")
         
-        for i in range(len(jConfig.tickersBinance)):
+        for i in range(len(modConfig.tickersBinance)):
             try:
-                priceNow = int(float(binance.getPrice(jConfig.tickersBinance[i])))
+                priceNow = int(float(binance.getPrice(modConfig.tickersBinance[i])))
 
                 # Check if the price is below the dip threshold
                 # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
-                for base in jConfig.timeframePrice:
-                    if base.exchange == "Binance" and base.ticker == jConfig.tickersBinance[i]:
+                for base in modConfig.timeframePrice:
+                    if base.exchange == "Binance" and base.ticker == modConfig.tickersBinance[i]:
                         percentage = 100 * (priceNow - base.price) / base.price
-                        utils.log("   > " + jConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
+                        utils.log("   > " + modConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
                         
                         # Buy if the price has dipped below threshold and nothing has been bought before
-                        if percentage < jConfig.dipThreshold and not base.bought:
+                        if percentage < modConfig.dipThreshold and not base.bought:
                             utils.log("       > Percentage below threshold, buying!")
                             
                             # Notify discord
                             msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                            await dBot.sendMsgByProx(msg)
+                            await modBot.sendMsgByProxy(msg)
                             
                             # Attempt to buy and otify discord and console about result
                             msg, status = binance.buy(base.ticker)
                             utils.log(msg)
-                            await dBot.sendMsgByProx("> `" + msg + "` @here")
+                            await modBot.sendMsgByProxy("> `" + msg + "` @here")
                                 
                             base.bought = True
             except Exception as e:
@@ -72,18 +72,18 @@ class Binance:
     
     def buy(self, ticker):
         # Assemble parameter string
-        stake = jConfig.data["exchanges"]["binance"]["stake"]
+        stake = modConfig.data["exchanges"]["binance"]["stake"]
         if stake < 1:
             return "\u274C Stake is less than 1! (Current: " + str(stake) + ")", False
         
         paramString = "symbol=" + str(ticker) + "&side=BUY&type=MARKET&quoteOrderQty=" + str(stake) + "&timestamp=" + str(int(time.time() * 1000))
-        paramString = paramString + "&signature=" + str(hash(paramString, jConfig.data["exchanges"]["binance"]["api_secret"]))
+        paramString = paramString + "&signature=" + str(hash(paramString, modConfig.data["exchanges"]["binance"]["api_secret"]))
         
         fullRequest = binanceAPI + "order?" + paramString
         #print(utils.getTime() + " [INFO] " + fullRequest)
         
         # Send POST
-        headers = {'X-MBX-APIKEY': jConfig.data["exchanges"]["binance"]["api_key"]}
+        headers = {'X-MBX-APIKEY': modConfig.data["exchanges"]["binance"]["api_key"]}
         response = requests.post(fullRequest.encode(), headers=headers)
         
         # Handle response
