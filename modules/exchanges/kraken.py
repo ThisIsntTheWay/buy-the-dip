@@ -12,6 +12,7 @@ import urllib.parse
 from requests.api import head
 
 import modules.utils as utils
+import modules.database as modDB
 import modules.configuration as modConfig
 import modules.discordBot as modBot
 
@@ -46,12 +47,16 @@ async def krakenMonitor():
                             
                             # Attempt to buy and otify discord and console about result
                             msg, status = kraken.buy(base.ticker, priceNow)
+                            
                             utils.log(msg)
+                            modDB.storeIntoDB("kraken", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
+                            
                             await modBot.sendMsgByProxy("> `" + msg + "` @here")
                                 
                             base.bought = True
         except Exception as e:
             utils.log("[OhNo] An error occurred within krakenMonitor(): " + str(e))
+            await modBot.sendMsgByProxy("\u274C The kraken subroutine has thrown an exception: " + str(e) + " @here")
 
 # ------------------------------
 #  Functions

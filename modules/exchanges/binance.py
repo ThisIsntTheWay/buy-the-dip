@@ -7,6 +7,7 @@ import requests
 import time
 
 import modules.utils as utils
+import modules.database as modDB
 import modules.configuration as modConfig
 import modules.discordBot as modBot
 
@@ -43,12 +44,15 @@ async def binanceMonitor():
                             
                             # Attempt to buy and otify discord and console about result
                             msg, status = binance.buy(base.ticker)
+                            
                             utils.log(msg)
                             await modBot.sendMsgByProxy("> `" + msg + "` @here")
+                            modDB.storeIntoDB("binance", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
                                 
                             base.bought = True
             except Exception as e:
                 utils.log("[OhNo] An error occurred within binanceMonitor(): " + str(e))
+                await modBot.sendMsgByProxy("\u274C The binance subroutine has thrown an exception: " + str(e) + " @here")
                 
 # ------------------------------
 #  Functions
