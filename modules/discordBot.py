@@ -61,7 +61,29 @@ async def timeframe(ctx):
     timeDiff = modConfig.timeframe - (int(time.time()) - modConfig.timeframeStart) 
     msg = "Timeframe (`"+ str(modConfig.timeframe / 3600) +"h`) will expire in: `" + str(round(timeDiff / 3600, 2)) + "h` / `" + str(timeDiff) + "s`."
     
-    await ctx.send(msg)
+    await ctx.send(msg)    
+    
+@client.command(name='stop', help='Stop the bot.')
+@has_permissions(manage_messages=True)  
+async def timeframe(ctx):
+    print("stop bot")
+    
+    if modConfig.canRun:
+        await ctx.send("Stopping the bot!")
+        modConfig.canRun = False
+    else:
+        await ctx.send("The bot is already stopped.")
+        
+@client.command(name='start', help='Start/Resume the bot.')
+@has_permissions(manage_messages=True)  
+async def timeframe(ctx):
+    print("start bot")
+    
+    if not modConfig.canRun:
+        await ctx.send("Resuming the bot!")
+        modConfig.canRun = True
+    else:
+        await ctx.send("The bot is already running.")
 
 @client.command(name='nuke', help='Completely nuke text channel.')
 @has_permissions(manage_messages=True)  

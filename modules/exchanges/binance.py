@@ -18,41 +18,40 @@ binanceAPI = "https://api.binance.com/api/v3/"
 
 async def binanceMonitor():
     await asyncio.sleep(8)
-    
-    while True:
-        await asyncio.sleep(3)
-        utils.log("[PRIC] Querying binance...")
-        
-        for i in range(len(modConfig.tickersBinance)):
-            try:
-                priceNow = int(float(binance.getPrice(modConfig.tickersBinance[i])))
+    if modConfig.canRun:
+        while True:
+            await asyncio.sleep(3)
+            utils.log("[PRIC] Querying binance...")
+            
+            for i in range(len(modConfig.tickersBinance)):
+                try:
+                    priceNow = int(float(binance.getPrice(modConfig.tickersBinance[i])))
 
-                # Check if the price is below the dip threshold
-                # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
-                for base in modConfig.timeframePrice:
-                    if base.exchange == "Binance" and base.ticker == modConfig.tickersBinance[i]:
-                        percentage = 100 * (priceNow - base.price) / base.price
-                        utils.log("   > " + modConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
-                        
-                        # Buy if the price has dipped below threshold and nothing has been bought before
-                        if percentage < modConfig.dipThreshold and not base.bought:
-                            utils.log("       > Percentage below threshold, buying!")
+                    # Check if the price is below the dip threshold
+                    # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE
+                    for base in modConfig.timeframePrice:
+                        if base.exchange == "Binance" and base.ticker == modConfig.tickersBinance[i]:
+                            percentage = 100 * (priceNow - base.price) / base.price
+                            utils.log("   > " + modConfig.tickersBinance[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
                             
-                            # Notify discord
-                            msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                            await modBot.sendMsgByProxy(msg)
-                            
-                            # Attempt to buy and otify discord and console about result
-                            msg, status = binance.buy(base.ticker)
-                            
-                            utils.log(msg)
-                            await modBot.sendMsgByProxy("> `" + msg + "` @here")
-                            modDB.storeIntoDB("binance", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
+                            # Buy if the price has dipped below threshold and nothing has been bought before
+                            if percentage < modConfig.dipThreshold and not base.bought:
+                                utils.log("       > Percentage below threshold, buying!")
+                                base.bought = True
                                 
-                            base.bought = True
-            except Exception as e:
-                utils.log("[OhNo] An error occurred within binanceMonitor(): " + str(e))
-                await modBot.sendMsgByProxy("\u274C The binance subroutine has thrown an exception: " + str(e) + " @here")
+                                # Notify discord
+                                msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
+                                await modBot.sendMsgByProxy(msg)
+                                
+                                # Attempt to buy and otify discord and console about result
+                                msg, status = binance.buy(base.ticker)
+                                
+                                utils.log(msg)
+                                await modBot.sendMsgByProxy("> `" + msg + "` @here")
+                                modDB.storeIntoDB("binance", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
+                except Exception as e:
+                    utils.log("[OhNo] An error occurred within binanceMonitor(): " + str(e))
+                    await modBot.sendMsgByProxy("\u274C The binance subroutine has thrown an exception: " + str(e) + " @here")
                 
 # ------------------------------
 #  Functions

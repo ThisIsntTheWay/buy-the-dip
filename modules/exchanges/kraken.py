@@ -3,13 +3,12 @@
 import asyncio
 import hmac
 import hashlib
-from logging import exception
+from discord.ext.commands.errors import CheckAnyFailure
 import requests
 import time
 import base64
 import urllib.parse
-
-from requests.api import head
+import traceback
 
 import modules.utils as utils
 import modules.database as modDB
@@ -25,38 +24,39 @@ async def krakenMonitor():
     await asyncio.sleep(8)
     
     while True:
-        await asyncio.sleep(3)        
-        utils.log("[PRIC] Querying kraken...")
-        
-        try:
-            for i in range(len(modConfig.tickersKraken)):
-                priceNow = int(float(kraken.getPrice(modConfig.tickersKraken[i])))
+        await asyncio.sleep(3)
+        if modConfig.canRun:
+            utils.log("[PRIC] Querying kraken...")
+            
+            try:
+                for i in range(len(modConfig.tickersKraken)):
+                    priceNow = int(float(kraken.getPrice(modConfig.tickersKraken[i])))
 
-                # Check if the price is below the dip threshold            
-                for base in modConfig.timeframePrice:
-                    if base.exchange == "Kraken" and base.ticker == modConfig.tickersKraken[i]:
-                        percentage = 100 * (priceNow - base.price) / base.price
-                        utils.log("   > " + modConfig.tickersKraken[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
-                        
-                        # Buy if the price has dipped below threshold and nothing has been bought before
-                        if percentage < modConfig.dipThreshold and not base.bought:
-                            utils.log("       > Percentage below threshold, buying!")
+                    # Check if the price is below the dip threshold            
+                    for base in modConfig.timeframePrice:
+                        if base.exchange == "Kraken" and base.ticker == modConfig.tickersKraken[i]:
+                            percentage = 100 * (priceNow - base.price) / base.price
+                            utils.log("   > " + modConfig.tickersKraken[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
                             
-                            msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                            await modBot.sendMsgByProxy(msg)
-                            
-                            # Attempt to buy and otify discord and console about result
-                            msg, status = kraken.buy(base.ticker, priceNow)
-                            
-                            utils.log(msg)
-                            modDB.storeIntoDB("kraken", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
-                            
-                            await modBot.sendMsgByProxy("> `" + msg + "` @here")
+                            # Buy if the price has dipped below threshold and nothing has been bought before
+                            if percentage < modConfig.dipThreshold and not base.bought:
+                                utils.log("       > Percentage below threshold, buying!")
+                                base.bought = True
                                 
-                            base.bought = True
-        except Exception as e:
-            utils.log("[OhNo] An error occurred within krakenMonitor(): " + str(e))
-            await modBot.sendMsgByProxy("\u274C The kraken subroutine has thrown an exception: " + str(e) + " @here")
+                                msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
+                                await modBot.sendMsgByProxy(msg)
+                                
+                                # Attempt to buy and otify discord and console about result
+                                msg, status = kraken.buy(base.ticker, priceNow)
+                                
+                                utils.log(msg)
+                                modDB.storeIntoDB("kraken", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
+                                
+                                await modBot.sendMsgByProxy("> `" + msg + "` @here")
+            except Exception as e:
+                utils.log("[OhNo] An error occurred within krakenMonitor(): " + str(e))
+                traceback.print_exc()
+                await modBot.sendMsgByProxy("\u274C The kraken subroutine has thrown an exception: " + str(e) + " @here")
 
 # ------------------------------
 #  Functions

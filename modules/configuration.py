@@ -14,6 +14,8 @@ timeframePrice = []
 timeframeStart = 0
 timeframeNum = 0
 
+canRun = True
+
 # Read config
 with open('configuration.json') as config:
     data = json.load(config)
