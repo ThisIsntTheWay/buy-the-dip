@@ -30,11 +30,13 @@ async def on_message(message):
 # Commands
 @client.command(name='ping', help='Have the bot confirm it\'s still alive.', pass_context=True)
 async def ping(ctx):
+    utils.log("[BOT] Heartbeat requested.")
     await ctx.reply("Pong!", mention_author=True)
     
 
 @client.command(name='show_config', help='Show the running configuration.')
 async def show_config(ctx):
+    utils.log("[BOT] Display running config.")
     msg = ""
     if (modConfig.data["exchanges"]["binance"]["enabled"]):
         msg += "> Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
@@ -46,6 +48,7 @@ async def show_config(ctx):
 
 @client.command(name='percentage', help='Get price change as percentage of specified ticker.')
 async def percentage(ctx, ticker=None):
+    utils.log("[BOT] Query percentage changes.")
     if ticker is None:
         return await ctx.send('Missing argument: `ticker`')
     
@@ -56,17 +59,25 @@ async def percentage(ctx, ticker=None):
     
 @client.command(name='timeframe', help='Get time left in the current timeframe.')
 async def timeframe(ctx):
-    print("timeframe")
+    utils.log("[BOT] Display timeframe.")
     
     timeDiff = modConfig.timeframe - (int(time.time()) - modConfig.timeframeStart) 
     msg = "Timeframe (`"+ str(modConfig.timeframe / 3600) +"h`) will expire in: `" + str(round(timeDiff / 3600, 2)) + "h` / `" + str(timeDiff) + "s`."
     
-    await ctx.send(msg)    
+    await ctx.send(msg)
+    
+@client.command(name="status", help="Get status of bot.")
+async def status(ctx):
+    utils.log("[BOT] Query status.")
+    if modConfig.canRun:
+        await ctx.send("The bot is running.")
+    else:
+        await ctx.send("The bot has been halted.")
     
 @client.command(name='stop', help='Stop the bot.')
 @has_permissions(manage_messages=True)  
 async def timeframe(ctx):
-    print("stop bot")
+    utils.log("[BOT] Stopping the bot.")
     
     if modConfig.canRun:
         await ctx.send("Stopping the bot!")
@@ -77,7 +88,7 @@ async def timeframe(ctx):
 @client.command(name='start', help='Start/Resume the bot.')
 @has_permissions(manage_messages=True)  
 async def timeframe(ctx):
-    print("start bot")
+    utils.log("[BOT] Resuming the bot.")
     
     if not modConfig.canRun:
         await ctx.send("Resuming the bot!")
@@ -87,7 +98,9 @@ async def timeframe(ctx):
 
 @client.command(name='nuke', help='Completely nuke text channel.')
 @has_permissions(manage_messages=True)  
-async def nuke(ctx):        
+async def nuke(ctx):
+    utils.log("[BOT] Nuking current channel.")
+    
     await ctx.channel.purge(limit=600)
     await ctx.send('Done purging this channel.')        
     
