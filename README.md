@@ -44,4 +44,4 @@ Please refer to the [wiki](https://github.com/ThisIsntTheWay/buy-the-dip/wiki) f
 - [X] Implement buy logic
 - [ ] Add "tiered" dip mode
 - [X] Add discord integration
-- [ ] Add sqlite db
+- [X] Add sqlite db
