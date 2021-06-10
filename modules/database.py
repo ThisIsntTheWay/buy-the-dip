@@ -7,7 +7,7 @@ dbMutation = database.cursor()
 
 def storeIntoDB(exchange, ticker, time, dip, timeframe, note):
     # Store stuff into table
-    dbMutation.execute("INSERT INTO history VALUES (NULL, '" + exchange + "', '" + ticker + "', '" + time + "', '" + str(dip) + "', '" + str(timeframe) + "', '" + note + "')")
+    dbMutation.execute('INSERT INTO history VALUES (NULL, ?, ?, ?, ?, ?, ?)', (exchange, ticker, time, str(dip), str(timeframe), note))
     database.commit()
     
 # Check if table exists
