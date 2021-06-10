@@ -3,17 +3,17 @@
 import asyncio
 import hmac
 import hashlib
-from logging import exception
+from discord.ext.commands.errors import CheckAnyFailure
 import requests
 import time
 import base64
 import urllib.parse
-
-from requests.api import head
+import traceback
 
 import modules.utils as utils
+import modules.database as modDB
 import modules.configuration as modConfig
-import modules.discordBot as dBot
+import modules.discordBot as modBot
 
 krakenAPI = "https://api.kraken.com"
 
@@ -24,39 +24,44 @@ async def krakenMonitor():
     await asyncio.sleep(8)
     
     while True:
-        await asyncio.sleep(3)        
-        utils.log("[PRIC] Querying kraken...")
-        
-        try:
-            for i in range(len(modConfig.tickersKraken)):
-                priceNow = int(float(kraken.getPrice(modConfig.tickersKraken[i])))
+        await asyncio.sleep(3)
+        if modConfig.canRun:
+            utils.log("[PRIC] Querying kraken...")
+            
+            try:
+                for i in range(len(modConfig.tickersKraken)):
+                    priceNow = int(float(kraken.getPrice(modConfig.tickersKraken[i])))
 
-                # Check if the price is below the dip threshold            
-                for base in modConfig.timeframePrice:
-                    if base.exchange == "Kraken" and base.ticker == modConfig.tickersKraken[i]:
-                        percentage = 100 * (priceNow - base.price) / base.price
-                        utils.log("   > " + modConfig.tickersKraken[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
-                        
-                        # Buy if the price has dipped below threshold and nothing has been bought before
-                        if percentage < modConfig.dipThreshold and not base.bought:
-                            utils.log("       > Percentage below threshold, buying!")
+                    # Check if the price is below the dip threshold            
+                    for base in modConfig.timeframePrice:
+                        if base.exchange == "Kraken" and base.ticker == modConfig.tickersKraken[i]:
+                            percentage = 100 * (priceNow - base.price) / base.price
+                            utils.log("   > " + modConfig.tickersKraken[i] + ": " + str(priceNow) + " - change: " + str(round(percentage, 2)) + "%")
                             
-                            # Notify discord
-                            msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
-                            await dBot.sendMsgByProx(msg)
-                            
-                            # Attempt to buy and otify discord and console about result
-                            msg, status = kraken.buy(base.ticker, priceNow)
-                            utils.log(msg)
-                            await dBot.sendMsgByProx("> `" + msg + "` @here")
+                            # Buy if the price has dipped below threshold and nothing has been bought before
+                            if percentage < modConfig.dipThreshold and not base.bought:
+                                utils.log("       > Percentage below threshold, buying!")
+                                base.bought = True
                                 
-                            base.bought = True
-        except:
-            utils.log("[OhNo] An error occurred within krakenMonitor()")
+                                msg = "Attempting to buy **" + base.ticker + "** at a price of **" + str(priceNow) + "** *(" + str(int(percentage))+ "%)* on **" + base.exchange + "**..."
+                                await modBot.sendMsgByProxy(msg)
+                                
+                                # Attempt to buy and otify discord and console about result
+                                msg, status = kraken.buy(base.ticker, priceNow)
+                                
+                                utils.log(msg)
+                                modDB.storeIntoDB("kraken", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
+                                
+                                await modBot.sendMsgByProxy("> `" + msg + "` @here")
+            except Exception as e:
+                utils.log("[OhNo] An error occurred within krakenMonitor(): " + str(e))
+                traceback.print_exc()
+                await modBot.sendMsgByProxy("\u274C The kraken subroutine has thrown an exception: " + str(e) + " @here")
 
 # ------------------------------
 #  Functions
 
+# Copied straight from the kraken API docs
 def getSignature(urlpath, data, secret):
     postdata = urllib.parse.urlencode(data)
     encoded = (str(data['nonce']) + postdata).encode()
@@ -77,15 +82,14 @@ def kraken_request(uri_path, data, api_key, api_sec):
 # ------------------------------
 #  Classes
 
-class Kraken:    
-    # Acquire price
+class Kraken:
     def getPrice(self, ticker):
         # Use request with fiddler:  'proxies={"http": "http://127.0.0.1:8888", "https":"http:127.0.0.1:8888"}, verify=r"FiddlerRoot.pem"'
         response = requests.get(krakenAPI + str("/0/public/Ticker?pair=") + str(ticker))
         
         # Handle response
         if response.status_code == 200:
-            # Kraken is hipster and doesn't necessarily return a ticker we except (Eg: I want BTCUSDT, I get *XXBT*USD)
+            # Kraken is hipster and doesn't necessarily return a ticker we except (Eg: want BTCUSDT, get *XXBT*USD)
             # As such, we need to save all keys on the second level (after 'result') into a list and access the first index, which is the ticker we want.
             # It's stupid >:(
         
@@ -96,6 +100,11 @@ class Kraken:
     
     def buy(self, ticker, priceNow):
         stake = modConfig.data["exchanges"]["kraken"]["stake"]
+        if stake < 1:
+            return "\u274C Stake is less than 1! (Current: " + str(stake) + ")", False
+        
+        #print("" + str(stake / priceNow))
+        #print("volume: " + str(stake / priceNow) + " calculated using STAKE (" + str(stake) + ") and PRICENOW (" + str(priceNow) + ")")
         
         response = kraken_request('/0/private/AddOrder', {
             "nonce": str(int(1000*time.time())),
@@ -111,7 +120,7 @@ class Kraken:
         if len(response.json()['error']) == 0:
             return "\u2705 [" + str(response.status_code) + "] " + str(response.json()['result']), True
         else:
-            return "\u274C [" + str(response.status_code) + "] " + str(response.json()), False    
+            return "\u274C [" + str(response.status_code) + "] " + str(response.json()), False
 
 # Create instances
 kraken = Kraken()

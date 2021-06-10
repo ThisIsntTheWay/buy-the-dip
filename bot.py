@@ -6,7 +6,7 @@ import asyncio
 import nest_asyncio
 nest_asyncio.apply()
 
-import modules.discordBot as dBot
+import modules.discordBot as modBot
 import modules.configuration as modConfig
 import modules.database as modDb
 import modules.utils as utils
@@ -17,15 +17,16 @@ import modules.exchanges.kraken as modKraken
 # ===       INIT                                      ===
 # =======================================================
 
-timeframeStart = int(time.time())
+modConfig.timeframeStart = int(time.time())
 
 # =======================================================
 # ===       FUNC                                      ===
 # =======================================================
 
 def newInterval():
-    utils.log(" [INFO] New timeframe!")
-    timeframeStart = int(time.time())
+    utils.log("[INFO] New timeframe!")
+    modConfig.timeframeStart = int(time.time())
+    modConfig.timeframeNum += 1
 
     # Populate modConfig.timeframePrice[] after clearing it
     modConfig.timeframePrice.clear()
@@ -65,41 +66,42 @@ async def intervalMonitor():
         msg += "> Binance: `" + str(modConfig.tickersBinance) + "`, stake: `" + str(modConfig.data["exchanges"]["binance"]["stake"]) + "` \n"
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
         msg += "> Kraken: `" + str(modConfig.tickersKraken) + "`, stake: `" + str(modConfig.data["exchanges"]["kraken"]["stake"]) + "` \n"
-    msg += "> Interval: `" + str(modConfig.timeframe / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
+    msg += "> Timeframe: `" + str(modConfig.timeframe / 3600) + "h`, dip threshold: `" + str(modConfig.dipThreshold) + "%`"
     
-    await dBot.sendMsgByProx(msg)
+    await modBot.sendMsgByProxy(msg)
     
     while True:
         await asyncio.sleep(1)
         # Check if an interval has passed
-        if (int(time.time()) - timeframeStart) > modConfig.timeframe:
+        if (int(time.time()) - modConfig.timeframeStart) > modConfig.timeframe:
+            await modBot.sendMsgByProxy("Starting a new timeframe.")
             newInterval()
 
 # =======================================================
 # ===       MAIN                                      ===
 # =======================================================
 
-utils.log("[INFO] Interval set at: " + str(modConfig.timeframe / 3600) + "h.")
+utils.log("[INFO] Timeframe set at: " + str(modConfig.timeframe / 3600) + "h.")
 utils.log("[INFO] Percentage threshold: " + str(modConfig.dipThreshold) + "%")
+utils.log("[NOTE] The first loop is always slower to start!")
 utils.log("[LOOP] Beginning...")
-utils.log("[NOTE] The first loop is always slow, please wait :)")
 newInterval()
 
 # Create tasks within discord.py asyncio loop
-dBot.client.loop.create_task(intervalMonitor())
+modBot.client.loop.create_task(intervalMonitor())
 if modConfig.data["exchanges"]["binance"]["enabled"]:
-    dBot.client.loop.create_task(modBinance.binanceMonitor())
+    modBot.client.loop.create_task(modBinance.binanceMonitor())
     
 if modConfig.data["exchanges"]["kraken"]["enabled"]:
-    dBot.client.loop.create_task(modKraken.krakenMonitor())
+    modBot.client.loop.create_task(modKraken.krakenMonitor())
 
-if dBot.discordActive:
-    dBot.client.run(modConfig.data["discord"]["token"])
+if modBot.discordActive:
+    modBot.client.run(modConfig.data["discord"]["token"])
 else:
     utils.log("[INFO] Discord integration is disabled.")
-    dBot.client.loop.run_forever()
+    modBot.client.loop.run_forever()
 
 utils.log("END OF SCRIPT")
 
-#dBot.client.loop.create_task(dBot.taskDiscord(str(modConfig.data["discord"]["channel"])))
-#dBot.client.run(str(modConfig.data["discord"]["token"]))
+#modBotclient.loop.create_task(modBottaskDiscord(str(modConfig.data["discord"]["channel"])))
+#modBotclient.run(str(modConfig.data["discord"]["token"]))

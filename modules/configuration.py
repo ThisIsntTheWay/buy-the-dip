@@ -1,57 +1,48 @@
 # Configuration module
+# This file parses the json configuration
 
 import sys
 import json
 
 import modules.utils as utils
 
-# This file parses the json configuration
-allTickers = []
+tickersBinance = []
+tickersKraken = []
+tickersCoinbase = []
 
-# Unified ticker[]
-# a = [["binance", ["ETHUSDT", "BTCUSDT"]], ["kraken", ["ETHCHF", "BTCCHF"]]]
+timeframePrice = []
+timeframeStart = 0
+timeframeNum = 0
 
-# Read configuration
+canRun = True
+
+# Read config
 with open('configuration.json') as config:
     data = json.load(config)
     
     # Populate ticker arrays
     # Binance
     if (data["exchanges"]["binance"]["enabled"]):
-        allTickers.append(["binance"])
-        allTickers[0].append(data["exchanges"]["binance"]["tickers"])
+        for i in range(len(data["exchanges"]["binance"]["tickers"])):
+            tickersBinance.append(data["exchanges"]["binance"]["tickers"][i])
     
     # Kraken
     if (data["exchanges"]["kraken"]["enabled"]):
-        allTickers.append(["kraken"])
+        for i in range(len(data["exchanges"]["kraken"]["tickers"])):
+            tickersKraken.append(data["exchanges"]["kraken"]["tickers"][i])
         
-        # Determine the correct index of allTickers
-        if allTickers[0][0] == "binance":
-            allTickers[1].append(data["exchanges"]["kraken"]["tickers"])
-        else:
-            allTickers[0].append(data["exchanges"]["kraken"]["tickers"])
-    
     # Coinbase
-    if (data["exchanges"]["coinbase"]["enabled"]):
-        allTickers.append(["coinbase"])
-        
-        # Determine the correct index of allTickers
-        if allTickers[0][0] == "binance":
-            if allTickers[1][0] == "kraken":
-                allTickers[2].append(data["exchanges"]["coinbase"]["tickers"])
-            else:
-                allTickers[1].append(data["exchanges"]["coinbase"]["tickers"])
-        else:
-            allTickers[0].append(data["exchanges"]["kraken"]["tickers"])
+    #if (data["exchanges"]["coinbase"]["enabled"]):
+    #   tickersKraken.append(data["exchanges"]["coinbase"]["tickers"])
         
     # Read misc config
     timeframe = data["dip_config"]["timeframe"]
     
     dipMode = data["dip_config"]["mode"]
     if dipMode == "threshold":
-        #dipThreshold = data["dip_config"]["threshold"]
-        #dipThreshold = -dipThreshold
-        dipThreshold = 5
+        dipThreshold = data["dip_config"]["threshold"]
+        dipThreshold = -dipThreshold
+        #dipThreshold = 5
     elif dipMode == "tiered":
         dipTiers = []
         for i in range(len(data["dip_config"]["tiers"])):
@@ -60,7 +51,7 @@ with open('configuration.json') as config:
         utils.log("[X] dipMode \"" + dipMode + "\" not yet implemented!")
         sys.exit()
     elif dipMode == "interval":
-        dipInterval = ["dip_config"]["interval"]
+        dipInterval = data["dip_config"]["interval"]
         
         utils.log("[X] dipMode \"" + dipMode + "\" not yet implemented!")
         sys.exit()
