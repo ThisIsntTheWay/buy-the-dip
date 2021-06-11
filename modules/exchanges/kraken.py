@@ -54,9 +54,15 @@ async def krakenMonitor():
                                 
                                 await modBot.sendMsgByProxy("> `" + msg + "` @here")
             except Exception as e:
-                utils.log("[OhNo] An error occurred within krakenMonitor(): " + str(e))
+                utils.log("[X] An error occurred within krakenMonitor().")
                 traceback.print_exc()
-                await modBot.sendMsgByProxy("\u274C The kraken subroutine has thrown an exception: " + str(e) + " @here")
+                    
+                if modConfig.verbosity == 1:
+                    msg = traceback.format_exception()
+                else:
+                    msg = str(e)
+                    
+                await modBot.sendMsgByProxy("\u274C Exception in kraken subroutine: \n`" + str(msg) + "` @here")
 
 # ------------------------------
 #  Functions

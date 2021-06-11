@@ -6,14 +6,20 @@ import json
 
 import modules.utils as utils
 
+# Ticker arrays
 tickersBinance = []
 tickersKraken = []
 tickersCoinbase = []
 
+# Timeframe vars
 timeframePrice = []
 timeframeStart = 0
 timeframeNum = 0
 
+# Verbosity level of exception reporting
+verbosity = 1
+
+# Bools
 canRun = True
 
 # Read config

@@ -5,6 +5,7 @@ import hmac
 import hashlib
 import requests
 import time
+import traceback
 
 import modules.utils as utils
 import modules.database as modDB
@@ -50,8 +51,15 @@ async def binanceMonitor():
                                 await modBot.sendMsgByProxy("> `" + msg + "` @here")
                                 modDB.storeIntoDB("binance", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
                 except Exception as e:
-                    utils.log("[OhNo] An error occurred within binanceMonitor(): " + str(e))
-                    await modBot.sendMsgByProxy("\u274C The binance subroutine has thrown an exception: " + str(e) + " @here")
+                    utils.log("[X] An error occurred within binanceMonitor().")
+                    traceback.print_exc()
+                    
+                    if modConfig.verbosity == 1:
+                        msg = traceback.format_exception()
+                    else:
+                        msg = str(e)
+                        
+                    await modBot.sendMsgByProxy("\u274C Exception in binance subroutine: \n`" + str(msg) + "` @here")
                 
 # ------------------------------
 #  Functions
