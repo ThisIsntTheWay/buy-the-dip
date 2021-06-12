@@ -49,7 +49,7 @@ async def binanceMonitor():
                                 
                                 utils.log(msg)
                                 await modBot.sendMsgByProxy("> `" + msg + "` @here")
-                                modDB.storeIntoDB("binance", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
+                                modDB.storeIntoDB("binance", base.ticker, utils.getTime(), modConfig.timeframeNum, percentage, msg)
                 except Exception as e:
                     utils.log("[X] An error occurred within binanceMonitor().")
                     traceback.print_exc()

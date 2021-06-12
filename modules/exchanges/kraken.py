@@ -50,7 +50,7 @@ async def krakenMonitor():
                                 msg, status = kraken.buy(base.ticker, priceNow)
                                 
                                 utils.log(msg)
-                                modDB.storeIntoDB("kraken", base.ticker, utils.getTime(), percentage, modConfig.timeframeNum, msg)
+                                modDB.storeIntoDB("kraken", base.ticker, utils.getTime(), modConfig.timeframeNum, percentage, msg)
                                 
                                 await modBot.sendMsgByProxy("> `" + msg + "` @here")
             except Exception as e:
