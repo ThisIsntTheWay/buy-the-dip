@@ -1,6 +1,7 @@
 # Discord bot module
 import time
-import asyncio
+import os
+import sys
 
 from discord.ext.commands import Bot
 from discord.ext.commands import MissingPermissions
@@ -84,6 +85,14 @@ async def timeframe(ctx):
         modConfig.canRun = False
     else:
         await ctx.send("The bot is already stopped.")
+        
+@client.command(name='reset', help='Restart the bot.')
+@has_permissions(manage_messages=True)
+async def reset(ctx):
+    utils.log("[BOT] Restarting the bot.")
+    await ctx.send("Restarting bot...")
+    
+    os.execv(sys.executable, ['python'] + sys.argv)
         
 @client.command(name='start', help='Start/Resume the bot.')
 @has_permissions(manage_messages=True)  
