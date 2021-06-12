@@ -16,6 +16,9 @@ timeframePrice = []
 timeframeStart = 0
 timeframeNum = 0
 
+# Misc
+lastUpdate = 0
+
 # Verbosity level of exception reporting
 verbosity = 1
 

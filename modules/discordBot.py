@@ -71,20 +71,23 @@ async def timeframe(ctx):
 async def status(ctx):
     utils.log("[BOT] Query status.")
     if modConfig.canRun:
-        await ctx.send("The bot is running.")
+        lastUpdate = int(time.time()) - modConfig.lastUpdate
+        
+        msg = "The bot is running.\nLast update: `" + str(lastUpdate) + "s` ago."
+        await ctx.send(msg)        
     else:
-        await ctx.send("The bot has been halted.")
+        await ctx.send("The bot is halted.")
     
-@client.command(name='stop', help='Stop the bot.')
+@client.command(name='stop', help='Halt the bot.')
 @has_permissions(manage_messages=True)  
 async def timeframe(ctx):
-    utils.log("[BOT] Stopping the bot.")
+    utils.log("[BOT] Pausing the bot.")
     
     if modConfig.canRun:
-        await ctx.send("Stopping the bot!")
+        await ctx.send("Bot has been halted!")
         modConfig.canRun = False
     else:
-        await ctx.send("The bot is already stopped.")
+        await ctx.send("The bot is already halted.")
         
 @client.command(name='reset', help='Restart the bot.')
 @has_permissions(manage_messages=True)

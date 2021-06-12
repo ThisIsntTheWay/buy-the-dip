@@ -27,6 +27,7 @@ async def binanceMonitor():
             for i in range(len(modConfig.tickersBinance)):
                 try:
                     priceNow = int(float(binance.getPrice(modConfig.tickersBinance[i])))
+                    modConfig.lastUpdate = int(time.time())
 
                     # Check if the price is below the dip threshold
                     # formula to calculate percentage change: 100 * (NEW_PRICE - OLD_RPICE) / OLD_PRICE

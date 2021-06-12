@@ -31,6 +31,7 @@ async def krakenMonitor():
             try:
                 for i in range(len(modConfig.tickersKraken)):
                     priceNow = int(float(kraken.getPrice(modConfig.tickersKraken[i])))
+                    modConfig.lastUpdate = int(time.time())
 
                     # Check if the price is below the dip threshold            
                     for base in modConfig.timeframePrice:
