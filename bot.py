@@ -44,15 +44,17 @@ def newInterval():
             
     if (modConfig.data["exchanges"]["kraken"]["enabled"]):
         for i in range(len(modConfig.tickersKraken)):
-            modConfig.timeframePrice.append(
-                modConfig.basePrice(
-                    'Kraken', 
-                    modConfig.tickersKraken[i],
-                    int(float(modKraken.kraken.getPrice(modConfig.tickersKraken[i]))),
-                    False,
-                    0
+            data, status = modKraken.kraken.getPrice(modConfig.tickersKraken[i])
+            if status:
+                modConfig.timeframePrice.append(
+                    modConfig.basePrice(
+                        'Kraken', 
+                        modConfig.tickersKraken[i],
+                        int(float(data)),
+                        False,
+                        0
+                    )
                 )
-            )
 
 # ------------------------------
 #  Async
