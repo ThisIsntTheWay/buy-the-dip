@@ -103,7 +103,8 @@ class Kraken:
             rTicker = list(response.json()["result"].keys())[0]
             return response.json()['result'][rTicker]['c'][0]
         else:
-            return "HTTP/" + str(response.status_code) + " - " + str(response.json()), False
+            utils.log("[X] Kraken failed to get price.")
+            return "HTTP/" + str(response.status_code) + " - " + str(response.text), False
     
     def buy(self, ticker, priceNow):
         stake = modConfig.data["exchanges"]["kraken"]["stake"]
