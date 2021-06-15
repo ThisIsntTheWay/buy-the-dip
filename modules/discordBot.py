@@ -94,8 +94,10 @@ async def timeframe(ctx):
 async def reset(ctx):
     utils.log("[BOT] Restarting the bot.")
     await ctx.send("Restarting bot...")
-    
-    os.execv(sys.executable, ['python'] + sys.argv)
+    try:
+        os.execv(sys.executable, ['python'] + sys.argv)
+    except Exception as e:
+        await ctx.send("Could not restart the bot: " + str(e) + "\nThe current session will continue.")
         
 @client.command(name='start', help='Start/Resume the bot.')
 @has_permissions(manage_messages=True)  
