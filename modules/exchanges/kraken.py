@@ -98,7 +98,11 @@ def kraken_request(uri_path, data, api_key, api_sec):
 class Kraken:
     def getPrice(self, ticker):
         # Use request with fiddler:  'proxies={"http": "http://127.0.0.1:8888", "https":"http:127.0.0.1:8888"}, verify=r"FiddlerRoot.pem"'
-        response = requests.get(krakenAPI + str("/0/public/Ticker?pair=") + str(ticker))
+        try:
+            response = requests.get(krakenAPI + str("/0/public/Ticker?pair=") + str(ticker))
+        except Exception as e:
+            utils.log("[kraken] GetPrice() has returend a fault: " + str(e))
+            return 0
         
         # Handle response
         if response.status_code == 200:
