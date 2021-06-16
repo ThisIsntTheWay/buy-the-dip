@@ -2,23 +2,31 @@
 import time
 import os
 import sys
+import discord
+
+import modules.utils as utils
+import modules.configuration as modConfig
 
 from discord.ext.commands import Bot
 from discord.ext.commands import MissingPermissions
 from discord.ext.commands import has_permissions
-
-import modules.utils as utils
-import modules.configuration as modConfig
     
 discordActive = modConfig.data["discord"]["enabled"]
 percentageBuffer = []
 
 client = Bot('!')
 
+# Functions
+def getLastUpdate():
+    return int(time.time()) - modConfig.lastUpdate
+
 # Events
 @client.event
 async def on_ready():
     print(utils.getTime() + ' [BOT] Successful login as {0.user}'.format(client))
+    while True:
+        presence = discord.Activity(type=discord.ActivityType.watching, name="Last update: `" + str(getLastUpdate()) + "s` ago.")
+        await client.change_presence(activity=presence)
     
 @client.event
 async def on_message(message):
@@ -70,10 +78,8 @@ async def timeframe(ctx):
 @client.command(name="status", help="Get status of bot.")
 async def status(ctx):
     utils.log("[BOT] Query status.")
-    if modConfig.canRun:
-        lastUpdate = int(time.time()) - modConfig.lastUpdate
-        
-        msg = "The bot is running.\nLast update: `" + str(lastUpdate) + "s` ago."
+    if modConfig.canRun:        
+        msg = "The bot is running.\nLast update: `" + str(getLastUpdate()) + "s` ago."
         await ctx.send(msg)        
     else:
         await ctx.send("The bot is halted.")
