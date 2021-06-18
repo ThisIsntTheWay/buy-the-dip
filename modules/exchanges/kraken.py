@@ -65,7 +65,7 @@ async def krakenMonitor():
                 traceback.print_exc()
                     
                 if modConfig.verbosity == 1:
-                    msg = traceback.format_exception()
+                    msg = str(traceback.format_exception())
                 else:
                     msg = str(e)
                     
@@ -100,20 +100,20 @@ class Kraken:
         # Use request with fiddler:  'proxies={"http": "http://127.0.0.1:8888", "https":"http:127.0.0.1:8888"}, verify=r"FiddlerRoot.pem"'
         try:
             response = requests.get(krakenAPI + str("/0/public/Ticker?pair=") + str(ticker))
+
+            # Handle response
+            if response.status_code == 200:
+                # Kraken is hipster and doesn't necessarily return a ticker we except (Eg: want BTCUSDT, get *XXBT*USD)
+                # As such, we need to save all keys on the second level (after 'result') into a list and access the first index, which is the ticker we want.
+                # It's stupid >:(
+            
+                rTicker = list(response.json()["result"].keys())[0]
+                return response.json()['result'][rTicker]['c'][0], True
+            else:
+                return "HTTP/" + str(response.status_code) + " - " + str(response.text), False
         except Exception as e:
             utils.log("[kraken] GetPrice() has returend a fault: " + str(e))
             return 0
-        
-        # Handle response
-        if response.status_code == 200:
-            # Kraken is hipster and doesn't necessarily return a ticker we except (Eg: want BTCUSDT, get *XXBT*USD)
-            # As such, we need to save all keys on the second level (after 'result') into a list and access the first index, which is the ticker we want.
-            # It's stupid >:(
-        
-            rTicker = list(response.json()["result"].keys())[0]
-            return response.json()['result'][rTicker]['c'][0], True
-        else:
-            return "HTTP/" + str(response.status_code) + " - " + str(response.text), False
     
     def buy(self, ticker, priceNow):
         stake = modConfig.data["exchanges"]["kraken"]["stake"]
