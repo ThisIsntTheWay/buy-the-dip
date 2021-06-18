@@ -25,7 +25,7 @@ def getLastUpdate():
 async def on_ready():
     print(utils.getTime() + ' [BOT] Successful login as {0.user}'.format(client))
     while True:
-        presence = discord.Activity(type=discord.ActivityType.watching, name="Last update: `" + str(getLastUpdate()) + "s` ago.")
+        presence = discord.Activity(type=discord.ActivityType.watching, name="Last update: " + str(getLastUpdate()) + "s ago.")
         await client.change_presence(activity=presence)
     
 @client.event
