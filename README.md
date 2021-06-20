@@ -15,8 +15,8 @@ It is very simple and follows the true tried-and-tested investment strategy as p
 Basically, the bot monitors user-defined tickers on various exchanges for a price change within a given timeframe.
 
 At the start of said timeframe, the bot saves the current price of all tickers it is monitoring.  
-Each second, the bot will then pull the prices for each ticker and compares them to the starting price.  
-The price change will be calculated using the current and the starting prace, resulting in a **percentage**.
+Every few seconds, the bot will pull prices for each ticker and compares them to the starting price.  
+A price change (in **%**) will then get calculated in each loop.  
 
 If this percentage is below a user-defined threshold, then the bot will attempt to buy the ticker.  
 Once the timeframe ends, a new starting price gets set and the cycle repeats.  
