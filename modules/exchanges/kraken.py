@@ -25,6 +25,7 @@ async def krakenMonitor():
     
     while True:
         await asyncio.sleep(3)
+
         if modConfig.canRun:
             utils.log("[PRIC] Querying kraken...")
             
@@ -69,7 +70,10 @@ async def krakenMonitor():
                 else:
                     msg = str(e)
                     
-                await modBot.sendMsgByProxy("\u274C Exception in kraken subroutine: \n`" + str(msg) + "` @here")
+                try:
+                    await modBot.sendMsgByProxy("\u274C Exception in kraken subroutine: \n`" + str(msg) + "` @here")
+                except Exception as e:
+                    utils.log("[X] Could not inform discord of exception: " + str(e))
 
 # ------------------------------
 #  Functions
@@ -97,7 +101,7 @@ def kraken_request(uri_path, data, api_key, api_sec):
 
 class Kraken:
     def getPrice(self, ticker):
-        # Use request with fiddler:  'proxies={"http": "http://127.0.0.1:8888", "https":"http:127.0.0.1:8888"}, verify=r"FiddlerRoot.pem"'
+        # Use request with fiddler: 'proxies={"http": "http://127.0.0.1:8888", "https":"http:127.0.0.1:8888"}, verify=r"FiddlerRoot.pem"'
         try:
             response = requests.get(krakenAPI + str("/0/public/Ticker?pair=") + str(ticker))
 
