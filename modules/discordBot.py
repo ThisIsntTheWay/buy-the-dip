@@ -80,6 +80,10 @@ async def status(ctx):
     utils.log("[BOT] Query status.")
     if modConfig.canRun:        
         msg = "The bot is running.\nLast update: `" + str(getLastUpdate()) + "s` ago."
+
+        if getLastUpdate() > 60:
+            msg += "\n\u26A0 Stale price info, investigation is advised!"
+
         await ctx.send(msg)        
     else:
         await ctx.send("The bot is halted.")
