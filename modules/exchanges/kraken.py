@@ -62,18 +62,20 @@ async def krakenMonitor():
                         utils.log("   > Failed to get price: " + str(data))
                                                        
             except Exception as e:
-                utils.log("[X] An error occurred within krakenMonitor().")
+                utils.log("[X] An error occurred within krakenMonitor()")
                 traceback.print_exc()
                     
                 if modConfig.verbosity == 1:
                     msg = str(traceback.format_exception())
                 else:
                     msg = str(e)
-                    
+                
+                utils.log("[D] Attempting to inform discord...")
                 try:
                     await modBot.sendMsgByProxy("\u274C Exception in kraken subroutine: \n`" + str(msg) + "` @here")
                 except Exception as e:
                     utils.log("[X] Could not inform discord of exception: " + str(e))
+                utils.log("[D] Done attempting.")
 
 # ------------------------------
 #  Functions
@@ -116,7 +118,7 @@ class Kraken:
             else:
                 return "HTTP/" + str(response.status_code) + " - " + str(response.text), False
         except Exception as e:
-            utils.log("[kraken] GetPrice() has returend a fault: " + str(e))
+            utils.log("[kraken] GetPrice() has returned a fault: " + str(e))
             return 0
     
     def buy(self, ticker, priceNow):
