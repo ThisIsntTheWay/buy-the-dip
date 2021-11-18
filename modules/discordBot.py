@@ -106,7 +106,7 @@ async def reset(ctx):
     await ctx.send("Restarting bot...")
     try:
         #os.execv(sys.executable, ['python'] + sys.argv)
-        os.execv(__file__, sys.argv)
+        os.execv(os.path.abspath(sys.argv[0]), ['/usr/bin/python3'] + sys.argv)
     except Exception as e:
         await ctx.send("Could not restart the bot: " + str(e) + "\nThe current session will continue.")
         
